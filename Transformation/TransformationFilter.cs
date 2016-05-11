@@ -14,12 +14,16 @@ namespace TransformationCore
         private List<object> _values;
         private TransformationFilterOperatorEnum _operator;
 
-        public void Initialise(XElement filterConfig)
+        public string FieldName { get; set; }
+
+        public TransformationFilter(XElement filterConfig)
         {
             if (filterConfig.Attribute("field") == null || filterConfig.Attribute("operator") == null || filterConfig.Attribute("value") == null)
             {
                 throw new TransformationFilterException(string.Format("Invalid Filter {0}", filterConfig.Attribute("field").Value));
             }
+
+            FieldName = filterConfig.Attribute("field").Value.ToLower();
 
             _operator = TransformationFilterOperatorEnum.Equal;
             if (!Enum.TryParse(filterConfig.Attribute("operator").Value, true, out _operator))

@@ -1,19 +1,13 @@
-﻿using log4net;
-using System;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Xml.Linq;
+using TransformationCore.Interfaces;
 
 namespace TransformationCore
 {
-    interface ITransformation
+    public interface ITransformation
     {
-        bool Initialise(XElement configXML, Dictionary<string, object> globalData, ILog logger);
+        bool Initialise(XElement configXML, Dictionary<string, object> globalData, ILogger logger);
 
-        Dictionary<string, object> Transform(Dictionary<string, object> row);
+        void Transform(Dictionary<string, object> row);
     }
 }

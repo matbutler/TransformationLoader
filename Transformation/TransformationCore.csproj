@@ -45,20 +45,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\TransformationFieldAttrib.cs" />
+    <Compile Include="Enums\MessageLevel.cs" />
+    <Compile Include="Enums\TransformationFieldTypeEnum.cs" />
     <Compile Include="Enums\TransformationFilterOperatorEnum.cs" />
+    <Compile Include="Exceptions\TransformationPipeException.cs" />
+    <Compile Include="Exceptions\TransformationException.cs" />
+    <Compile Include="Exceptions\ConfigException.cs" />
     <Compile Include="Exceptions\TransformationFilterException.cs" />
+    <Compile Include="Helpers\LinqAccessors.cs" />
+    <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Transformation.cs" />
     <Compile Include="ITransformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TransformationFactory.cs" />
+    <Compile Include="TransformationField.cs" />
     <Compile Include="TransformationFilter.cs" />
     <Compile Include="TransformationPipe.cs" />
+    <Compile Include="TransformationPipeRunner.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Interfaces\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
