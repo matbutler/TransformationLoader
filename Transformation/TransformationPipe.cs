@@ -36,7 +36,7 @@ namespace TransformationCore
         /// <param name="globalDS">The global dataset used to store common lookup tables</param> 
         /// <param name="logger">The UI Logging Object</param> 
         /// <param name="pipeNumber">The number of the pipe(thread) this transformation pipe is in</param> 
-        public TransformationPipe(XElement config, Dictionary<string, object> globalData, ILogger logger, int pipeNumber)
+        public TransformationPipe(XElement config, Dictionary<string, object> globalData, ILogger logger, int pipeNumber, CompositionContainer container)
         {
             _logger = logger;
             _pipeNumber = pipeNumber;
@@ -55,13 +55,11 @@ namespace TransformationCore
 
             SetErrorsAllowed(pipeElement, mgslvl);
 
-            NewMethod(globalData, pipeElement, mgslvl);
+            CreateTransformations(globalData, pipeElement, container, mgslvl);
         }
 
-        private void NewMethod(Dictionary<string, object> globalData, XElement pipeElement, MessageLevel mgslvl)
+        private void CreateTransformations(Dictionary<string, object> globalData, XElement pipeElement, CompositionContainer container, MessageLevel mgslvl)
         {
-            var catalog = new DirectoryCatalog("Engine");
-            var container = new CompositionContainer(catalog);
 
             int count = 0;
             foreach (var tranConfig in pipeElement.Elements("transformation"))
@@ -127,7 +125,7 @@ namespace TransformationCore
         /// <param name="rowprocessedCount">The variable to update number of rows processed</param> 
         /// <param name="ct">The cancellation object to cancel cross pipes(threads)</param> 
         /// <param name="rowLogAction">The row logging function (success,dropped,number,message)</param> 
-        public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, ref int pipeCount, ref int rowprocessedCount, CancellationToken ct, Action<bool, bool, int, string, SqlConnection> rowLogAction)
+        public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, ref int pipeCount, ref int rowprocessedCount, CancellationToken ct, Action<bool, bool, int, string> rowLogAction)
         {
             _logger.Log(string.Format("Pipe {0}: Started", _pipeNumber), MessageLevel.Debug);
             Interlocked.Increment(ref pipeCount);
@@ -163,7 +161,7 @@ namespace TransformationCore
         /// <param name="row">The row to process</param> 
         /// <param name="errorCount">The total number of errors accross the pipes(threads)</param>
         /// <param name="rowLogAction">The row logging function (success,dropped,number,message)</param>  
-        public void Load(Dictionary<string, object> row, ref int errorCount, Action<bool, bool, int, string, SqlConnection> rowLogAction)
+        public void Load(Dictionary<string, object> row, ref int errorCount, Action<bool, bool, int, string> rowLogAction)
         {
             string curTransformation = "";
             int rowNo = -1;
