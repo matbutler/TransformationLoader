@@ -211,7 +211,7 @@ namespace TransformationCore
 
                 SetupGlobalVar();
 
-                reader.initialise(_config, _logger);
+                reader.initialise("", _config, _logger);
 
                 _sw.Start();
 

@@ -1,0 +1,13 @@
+C:\Project\TransformationLoader\ReaderTest\bin\Debug\ReaderTest.exe.config
+C:\Project\TransformationLoader\ReaderTest\bin\Debug\ReaderTest.exe
+C:\Project\TransformationLoader\ReaderTest\bin\Debug\ReaderTest.pdb
+C:\Project\TransformationLoader\ReaderTest\bin\Debug\CSVReader.dll
+C:\Project\TransformationLoader\ReaderTest\bin\Debug\TransformationCore.dll
+C:\Project\TransformationLoader\ReaderTest\bin\Debug\LumenWorks.Framework.IO.dll
+C:\Project\TransformationLoader\ReaderTest\bin\Debug\CSVReader.pdb
+C:\Project\TransformationLoader\ReaderTest\bin\Debug\TransformationCore.pdb
+C:\Project\TransformationLoader\ReaderTest\bin\Debug\LumenWorks.Framework.IO.pdb
+C:\Project\TransformationLoader\ReaderTest\bin\Debug\LumenWorks.Framework.IO.xml
+C:\Project\TransformationLoader\ReaderTest\obj\Debug\ReaderTest.csprojResolveAssemblyReference.cache
+C:\Project\TransformationLoader\ReaderTest\obj\Debug\ReaderTest.exe
+C:\Project\TransformationLoader\ReaderTest\obj\Debug\ReaderTest.pdb

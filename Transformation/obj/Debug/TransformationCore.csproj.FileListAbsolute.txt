@@ -1,0 +1,7 @@
+C:\Project\TransformationLoader\Transformation\bin\Debug\TransformationCore.dll
+C:\Project\TransformationLoader\Transformation\bin\Debug\TransformationCore.pdb
+C:\Project\TransformationLoader\Transformation\bin\Debug\log4net.dll
+C:\Project\TransformationLoader\Transformation\bin\Debug\log4net.xml
+C:\Project\TransformationLoader\Transformation\obj\Debug\TransformationCore.csprojResolveAssemblyReference.cache
+C:\Project\TransformationLoader\Transformation\obj\Debug\TransformationCore.dll
+C:\Project\TransformationLoader\Transformation\obj\Debug\TransformationCore.pdb

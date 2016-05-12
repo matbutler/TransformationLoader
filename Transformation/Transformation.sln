@@ -5,6 +5,10 @@ VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformationCore", "TransformationCore.csproj", "{EE3C4F3C-C316-4A17-9730-6280D948C2DA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSVReader", "..\CSVReader\CSVReader.csproj", "{6269EBA8-C98C-42EC-BFF4-B0E1F8D9E53C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReaderTest", "..\ReaderTest\ReaderTest.csproj", "{D7916078-EB90-4804-94DF-5E7705830F6A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{EE3C4F3C-C316-4A17-9730-6280D948C2DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE3C4F3C-C316-4A17-9730-6280D948C2DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE3C4F3C-C316-4A17-9730-6280D948C2DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6269EBA8-C98C-42EC-BFF4-B0E1F8D9E53C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6269EBA8-C98C-42EC-BFF4-B0E1F8D9E53C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6269EBA8-C98C-42EC-BFF4-B0E1F8D9E53C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6269EBA8-C98C-42EC-BFF4-B0E1F8D9E53C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7916078-EB90-4804-94DF-5E7705830F6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7916078-EB90-4804-94DF-5E7705830F6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7916078-EB90-4804-94DF-5E7705830F6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7916078-EB90-4804-94DF-5E7705830F6A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
