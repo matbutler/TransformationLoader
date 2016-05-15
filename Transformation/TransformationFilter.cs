@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using TransformationCore.Enums;
 using TransformationCore.Exceptions;
+using TransformationCore.Helpers;
 
 namespace TransformationCore
 {
@@ -45,12 +46,12 @@ namespace TransformationCore
 
                 foreach (var filterVal in filtervals)
                 {
-                    _values.Add(ConvertFilterVal(filterConfig, filterVal));
+                    _values.Add(TypeConverter.GetConverter(filterConfig.Attribute("filtertype")?.Value, filterConfig.Attribute("format")?.Value)(filterVal));
                 }
             }
             else
             {
-                _values.Add(ConvertFilterVal(filterConfig, values));
+                _values.Add(TypeConverter.GetConverter(filterConfig.Attribute("filtertype")?.Value, filterConfig.Attribute("format")?.Value)(values));
             }
         }
 
@@ -91,42 +92,6 @@ namespace TransformationCore
 
                 return false;
             });
-        }
-
-        private static object ConvertFilterVal(XElement filterConfig, string val)
-        {
-            if (val == "null")
-            {
-                return null;
-            }
-            else
-            {
-                switch (filterConfig.Attribute("filtertype").Value)
-                {
-                    case "DATETIME":
-                        string fldformat = "";
-                        if (filterConfig.Attribute("format") != null)
-                        {
-                            fldformat = filterConfig.Attribute("format").Value;
-                        }
-                        else
-                        {
-                            throw new TransformationFilterException(string.Format("Missing FilterType Date Pattern (format) for Filter {0}", filterConfig.Attribute("field").Value));
-                        }
-
-                        return DateTime.ParseExact(val, fldformat, null);
-                    case "NUMBER":
-                        return long.Parse(val);
-                    case "DECIMAL":
-                        return decimal.Parse(val);
-                    case "TEXT":
-                        return val;
-                    case "BOOL":
-                        return Convert.ToBoolean(val);
-                    default:
-                        throw new TransformationFilterException(string.Format("Invalid FilterType({1}) for Filter {0}", filterConfig.Attribute("field").Value, filterConfig.Attribute("filtertype").Value));
-                }
-            }
         }
     }
 }

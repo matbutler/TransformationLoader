@@ -211,7 +211,7 @@ namespace TransformationCore
 
                 SetupGlobalVar();
 
-                reader.initialise("", _config, _logger);
+                reader.Initialise("", _config, _logger);
 
                 _sw.Start();
 
@@ -305,7 +305,7 @@ namespace TransformationCore
             {
                 try
                 {
-                    reader.load(_inputQueue, ref _rowErrorCount, token, _logger, rowlogger.LogRow);
+                    reader.Load(_inputQueue, ref _rowErrorCount, token, _logger, rowlogger.LogRow);
                 }
                 catch (Exception ex)
                 {

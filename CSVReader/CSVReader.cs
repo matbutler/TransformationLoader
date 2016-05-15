@@ -9,60 +9,145 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using TransformationCore.Exceptions;
+using TransformationCore.Helpers;
 using TransformationCore.Interfaces;
+using TransformationCore.Models;
 
 namespace CSVReader
 {
     public class CSVReader : IReader
     {
         private string fileName;
+        private char delimeter = ',';
+        private bool hasHeader = true;
+        private List<ReaderField> fields = new List<ReaderField>();
 
-        public void initialise(string fileName, XElement config, ILogger logger)
+        public void Initialise(string fileName, XElement config, ILogger logger)
         {
             this.fileName = fileName;
+
+            if (config == null)
+            {
+                throw new ConfigException("Invalid CSV config");
+            }
+
+            if (config.Attribute("delimeter") != null && !string.IsNullOrWhiteSpace(config.Attribute("delimeter").Value))
+            {
+                this.delimeter = config.Attribute("delimeter").Value.ToCharArray()[0];
+            }
+
+            if (config.Attribute("hasheader") != null && !string.IsNullOrWhiteSpace(config.Attribute("hasheader").Value))
+            {
+                this.hasHeader = config.Attribute("hasheader").Value.Equals("true", StringComparison.OrdinalIgnoreCase);
+            }
+
+            if (config.Element("fields") == null || config.Element("fields").Elements("field").Count() == 0)
+            {
+                throw new ConfigException("No fields have been defined");
+            }
+
+            this.fields = SetupReaderFields(config);
         }
 
-        public void load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, CancellationToken ct, ILogger logger, Action<bool, bool, int, string> rowLogAction)
+        private List<ReaderField> SetupReaderFields(XElement config)
         {
-            var sw = new Stopwatch();
+            var readerFields = new List<ReaderField>();
 
-            sw.Start();
-            Console.WriteLine("Started");
-            using (CsvReader csv = new CsvReader(new StreamReader(this.fileName), true))
+            var configFields = config.Element("fields").Elements("field").ToList();
+            foreach (var configField in configFields)
             {
-                csv.Columns = new List<LumenWorks.Framework.IO.Csv.Column>
+                if (configField.Attribute("name") == null || string.IsNullOrWhiteSpace(configField.Attribute("name").Value))
                 {
-                    new LumenWorks.Framework.IO.Csv.Column { Name = "Transaction Date", Type = typeof(DateTime) },
-                    new LumenWorks.Framework.IO.Csv.Column { Name = "Transaction Type", Type = typeof(string) },
-                    new LumenWorks.Framework.IO.Csv.Column { Name = "Sort Code", Type = typeof(string) },
-                    new LumenWorks.Framework.IO.Csv.Column { Name = "Account Number", Type = typeof(string) },
-                    new LumenWorks.Framework.IO.Csv.Column { Name = "Transaction Description", Type = typeof(string) },
-                    new LumenWorks.Framework.IO.Csv.Column { Name = "Debit Amount", Type = typeof(decimal) },
-                    new LumenWorks.Framework.IO.Csv.Column { Name = "Credit Amount", Type = typeof(decimal) },
-                    new LumenWorks.Framework.IO.Csv.Column { Name = "Balance", Type = typeof(decimal) },
-                };
+                    throw new ConfigException("Missing field name");
+                }
 
+                if (configField.Attribute("type") == null || string.IsNullOrWhiteSpace(configField.Attribute("type").Value))
+                {
+                    throw new ConfigException("Missing field type");
+                }
+
+                var name = configField.Attribute("name").Value;
+                var type = configField.Attribute("type").Value.ToUpper();
+                int? index = null;
+
+                if (configField.Attribute("index") != null && !string.IsNullOrWhiteSpace(configField.Attribute("index").Value))
+                {
+                    var indexValue = 0;
+                    if (!int.TryParse(configField.Attribute("index").Value, out indexValue))
+                    {
+                        throw new ConfigException(string.Format("Invalid index for field : {0}", name));
+                    }
+
+                    index = indexValue;
+                }
+
+                readerFields.Add(new ReaderField
+                {
+                    Name = name,
+                    Index = index,
+                    Converter = TypeConverter.GetConverter(type, configField.Attribute("format")?.Value),
+                });
+            }
+
+            return readerFields;
+        }
+
+
+        public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, CancellationToken ct, ILogger logger, Action<bool, bool, int, string> rowLogAction)
+        {
+            using (CsvReader csv = new CsvReader(new StreamReader(this.fileName), this.hasHeader, this.delimeter))
+            {
                 int fieldCount = csv.FieldCount;
+
+                var sw = new Stopwatch();
+
+                sw.Start();
+
+                LookupFieldIndexFromName(csv);
+
                 int count = 0;
-                string[] headers = csv.GetFieldHeaders();
                 while (csv.ReadNextRecord())
                 {
                     var row = new Dictionary<string, object>();
 
-                    for (int i = 0; i < fieldCount; i++)
+                    foreach (var field in this.fields)
                     {
-                        row.Add(headers[i], csv[i]);
+                        row.Add(field.Name, field.Converter(csv[field.Index.Value]));
                     }
+
+                    row.Add("#row", count);
 
                     inputQueue.Add(row);
                     count++;
                 }
 
                 sw.Stop();
-                Console.WriteLine("Stop {1} rows in {0} ({2} per sec)", sw.Elapsed.TotalSeconds, count, sw.Elapsed.TotalSeconds / count);
+                Console.WriteLine("Stop {1} rows in {0} ({2:#,###} per sec)", sw.Elapsed.TotalSeconds, count, (decimal)(count / sw.Elapsed.TotalSeconds));
                 Console.ReadKey();
             }
 
+        }
+
+        private void LookupFieldIndexFromName(CsvReader csv)
+        {
+            if (this.hasHeader)
+            {
+                var headers = csv.GetFieldHeaders().Select((x, i) => new { Name = x, Index = i }).ToDictionary(x => x.Name, x => x.Index);
+
+                foreach (var field in this.fields)
+                {
+                    if (!field.Index.HasValue)
+                    {
+                        if (!headers.ContainsKey(field.Name))
+                        {
+                            throw new ReaderException(string.Format("Missing Field {0}", field.Name));
+                        }
+
+                        field.Index = headers[field.Name];
+                    }
+                }
+            }
         }
     }
 }
