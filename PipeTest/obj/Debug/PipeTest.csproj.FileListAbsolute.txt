@@ -1,0 +1,10 @@
+C:\Personal Projects\TransformationLoader\PipeTest\bin\Debug\PipeTest.exe.config
+C:\Personal Projects\TransformationLoader\PipeTest\bin\Debug\PipeTest.exe
+C:\Personal Projects\TransformationLoader\PipeTest\bin\Debug\PipeTest.pdb
+C:\Personal Projects\TransformationLoader\PipeTest\bin\Debug\TransformationCore.dll
+C:\Personal Projects\TransformationLoader\PipeTest\bin\Debug\TransformationRunner.dll
+C:\Personal Projects\TransformationLoader\PipeTest\bin\Debug\TransformationRunner.pdb
+C:\Personal Projects\TransformationLoader\PipeTest\bin\Debug\TransformationCore.pdb
+C:\Personal Projects\TransformationLoader\PipeTest\obj\Debug\PipeTest.csprojResolveAssemblyReference.cache
+C:\Personal Projects\TransformationLoader\PipeTest\obj\Debug\PipeTest.exe
+C:\Personal Projects\TransformationLoader\PipeTest\obj\Debug\PipeTest.pdb

@@ -1,0 +1,5 @@
+C:\Personal Projects\TransformationLoader\PipeTest\bin\Debug\Engine\SQLBulkLoader.dll
+C:\Personal Projects\TransformationLoader\PipeTest\bin\Debug\Engine\SQLBulkLoader.pdb
+C:\Personal Projects\TransformationLoader\SQLBulkLoader\obj\Debug\SQLBulkLoader.csprojResolveAssemblyReference.cache
+C:\Personal Projects\TransformationLoader\SQLBulkLoader\obj\Debug\SQLBulkLoader.dll
+C:\Personal Projects\TransformationLoader\SQLBulkLoader\obj\Debug\SQLBulkLoader.pdb

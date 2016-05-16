@@ -10,7 +10,7 @@ namespace TransformationCore.Helpers
     {
         public static Func<string, object> GetConverter(string type, string format)
         {
-            switch (type)
+            switch (type.ToUpper())
             {
                 case "DATETIME":
                     if (string.IsNullOrWhiteSpace(format))
@@ -19,14 +19,37 @@ namespace TransformationCore.Helpers
                     }
 
                     return x => DateTime.ParseExact(x, format, null);
-                case "NUMBER":
+                case "INT":
+                    return x => (object)long.Parse(x);
+                case "LONG":
                     return x => (object)long.Parse(x);
                 case "DECIMAL":
                     return x => (object)decimal.Parse(x);
-                case "TEXT":
+                case "STRING":
                     return x => x;
                 case "BOOL":
                     return x => (object)Convert.ToBoolean(x);
+                default:
+                    throw new InvalidCastException(string.Format("Invalid type {0}", type));
+            }
+        }
+
+        public static Type GetType(string type)
+        {
+            switch (type.ToUpper())
+            {
+                case "DATETIME":
+                    return typeof(DateTime);
+                case "INT":
+                    return typeof(int);
+                case "LONG":
+                    return typeof(long);
+                case "DECIMAL":
+                    return typeof(decimal);
+                case "STRING":
+                    return typeof(string);
+                case "BOOL":
+                    return typeof(bool);
                 default:
                     throw new InvalidCastException(string.Format("Invalid type {0}", type));
             }

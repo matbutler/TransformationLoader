@@ -2,13 +2,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
+using TransformationCore;
 using TransformationCore.Exceptions;
 using TransformationCore.Helpers;
 using TransformationCore.Interfaces;
@@ -16,16 +15,20 @@ using TransformationCore.Models;
 
 namespace CSVReader
 {
+    [Export(typeof(IReader))]
+    [PartCreationPolicy(CreationPolicy.NonShared)]
+    [ExportMetadata("Name", "CSVReader")]
+    [ExportMetadata("Version", "1.0.0")]
     public class CSVReader : IReader
     {
-        private string fileName;
-        private char delimeter = ',';
-        private bool hasHeader = true;
-        private List<ReaderField> fields = new List<ReaderField>();
+        private string _fileName;
+        private char _delimeter = ',';
+        private bool _hasHeader = true;
+        private List<ReaderField> _fields = new List<ReaderField>();
 
         public void Initialise(string fileName, XElement config, ILogger logger)
         {
-            this.fileName = fileName;
+            _fileName = fileName;
 
             if (config == null)
             {
@@ -34,12 +37,12 @@ namespace CSVReader
 
             if (config.Attribute("delimeter") != null && !string.IsNullOrWhiteSpace(config.Attribute("delimeter").Value))
             {
-                this.delimeter = config.Attribute("delimeter").Value.ToCharArray()[0];
+                _delimeter = config.Attribute("delimeter").Value.ToCharArray()[0];
             }
 
             if (config.Attribute("hasheader") != null && !string.IsNullOrWhiteSpace(config.Attribute("hasheader").Value))
             {
-                this.hasHeader = config.Attribute("hasheader").Value.Equals("true", StringComparison.OrdinalIgnoreCase);
+                _hasHeader = config.Attribute("hasheader").Value.Equals("true", StringComparison.OrdinalIgnoreCase);
             }
 
             if (config.Element("fields") == null || config.Element("fields").Elements("field").Count() == 0)
@@ -47,7 +50,7 @@ namespace CSVReader
                 throw new ConfigException("No fields have been defined");
             }
 
-            this.fields = SetupReaderFields(config);
+            _fields = SetupReaderFields(config);
         }
 
         private List<ReaderField> SetupReaderFields(XElement config)
@@ -96,46 +99,33 @@ namespace CSVReader
 
         public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, CancellationToken ct, ILogger logger, Action<bool, bool, int, string> rowLogAction)
         {
-            using (CsvReader csv = new CsvReader(new StreamReader(this.fileName), this.hasHeader, this.delimeter))
+            using (CsvReader csv = new CsvReader(new StreamReader(_fileName), _hasHeader, _delimeter))
             {
-                int fieldCount = csv.FieldCount;
-
-                var sw = new Stopwatch();
-
-                sw.Start();
-
                 LookupFieldIndexFromName(csv);
 
-                int count = 0;
                 while (csv.ReadNextRecord())
                 {
                     var row = new Dictionary<string, object>();
 
-                    foreach (var field in this.fields)
+                    foreach (var field in _fields)
                     {
                         row.Add(field.Name, field.Converter(csv[field.Index.Value]));
                     }
 
-                    row.Add("#row", count);
+                    row.Add("#row", csv.CurrentRecordIndex);
 
                     inputQueue.Add(row);
-                    count++;
                 }
-
-                sw.Stop();
-                Console.WriteLine("Stop {1} rows in {0} ({2:#,###} per sec)", sw.Elapsed.TotalSeconds, count, (decimal)(count / sw.Elapsed.TotalSeconds));
-                Console.ReadKey();
             }
-
         }
 
         private void LookupFieldIndexFromName(CsvReader csv)
         {
-            if (this.hasHeader)
+            if (_hasHeader)
             {
-                var headers = csv.GetFieldHeaders().Select((x, i) => new { Name = x, Index = i }).ToDictionary(x => x.Name, x => x.Index);
+                var headers = csv.GetFieldHeaders().Select((x, i) => new { Name = x.ToLower(), Index = i }).ToDictionary(x => x.Name, x => x.Index);
 
-                foreach (var field in this.fields)
+                foreach (var field in _fields)
                 {
                     if (!field.Index.HasValue)
                     {

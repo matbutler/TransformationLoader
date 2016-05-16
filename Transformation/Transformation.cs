@@ -18,7 +18,7 @@ namespace TransformationCore
         protected List<TransformationField> _inputfields = new List<TransformationField>();
         protected List<TransformationField> _outputfields = new List<TransformationField>();
         protected Dictionary<string, object> GlobalData { get; set; }
-        protected int RowNo { get; set; }
+        protected long RowNo { get; set; }
 
         public bool Initialise(XElement configXML, Dictionary<string, object> globalData, ILogger logger)
         {
@@ -120,6 +120,7 @@ namespace TransformationCore
 
         protected abstract bool Initialise(XElement configXML, ILogger logger);
         protected abstract void Transform();
+        public abstract void Close();
         protected virtual void PreTransform(Dictionary<string, object> row)
         {
         }
@@ -142,7 +143,7 @@ namespace TransformationCore
 
         public void Transform(Dictionary<string, object> row)
         {
-            RowNo = (int)row["#no"];
+            RowNo = (long)row["#row"];
 
             if (_filters != null)
             {

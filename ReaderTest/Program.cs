@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace ReaderTest
@@ -19,16 +17,22 @@ namespace ReaderTest
             int errorCount = 0;
             var ct = new CancellationTokenSource().Token;
 
-            var config = XElement.Parse(@"<reader name=""CSVReader"">
-                                            <fields>
-                                                <field name=""Transaction Date"" type=""datetime"" format=""dd/MM/yyyy""/>
-                                                <field name=""Balance"" type=""decimal""/>
-                                            </fields>
-                                        </reader>");
+            var config = XElement.Parse(@"<reader name=""CSVReader"" delimeter=""|"">
+                                                <fields>
+                                                    <field name=""personnel Number"" type=""int""/>
+                                                    <field name=""position"" type=""string""/>
+                                                </fields>
+                                            </reader>");
 
-            reader.Initialise(@"c:\temp\data.csv", config, null);
+            reader.Initialise(@"c:\temp\stafftest.csv", config, null);
 
+
+            var sw = new Stopwatch();
+            sw.Start();
             reader.Load(queue, ref errorCount, ct, null, null);
+            sw.Stop();
+            Console.WriteLine("Stop {1} rows in {0} ({2:#,###} per sec)", sw.Elapsed.TotalSeconds, queue.Count, (decimal)(queue.Count / sw.Elapsed.TotalSeconds));
+            Console.ReadKey();
         }
     }
 }

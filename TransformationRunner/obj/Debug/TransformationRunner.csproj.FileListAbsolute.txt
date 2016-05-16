@@ -1,0 +1,7 @@
+C:\Personal Projects\TransformationLoader\TransformationRunner\bin\Debug\TransformationRunner.dll
+C:\Personal Projects\TransformationLoader\TransformationRunner\bin\Debug\TransformationRunner.pdb
+C:\Personal Projects\TransformationLoader\TransformationRunner\bin\Debug\TransformationCore.dll
+C:\Personal Projects\TransformationLoader\TransformationRunner\bin\Debug\TransformationCore.pdb
+C:\Personal Projects\TransformationLoader\TransformationRunner\obj\Debug\TransformationRunner.csprojResolveAssemblyReference.cache
+C:\Personal Projects\TransformationLoader\TransformationRunner\obj\Debug\TransformationRunner.dll
+C:\Personal Projects\TransformationLoader\TransformationRunner\obj\Debug\TransformationRunner.pdb

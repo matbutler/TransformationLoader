@@ -8,3 +8,8 @@ C:\Project\TransformationLoader\CSVReader\bin\Debug\LumenWorks.Framework.IO.pdb
 C:\Project\TransformationLoader\CSVReader\bin\Debug\LumenWorks.Framework.IO.xml
 C:\Project\TransformationLoader\CSVReader\obj\Debug\CSVReader.dll
 C:\Project\TransformationLoader\CSVReader\obj\Debug\CSVReader.pdb
+C:\Personal Projects\TransformationLoader\PipeTest\bin\Debug\Engine\CSVReader.dll
+C:\Personal Projects\TransformationLoader\PipeTest\bin\Debug\Engine\CSVReader.pdb
+C:\Personal Projects\TransformationLoader\CSVReader\obj\Debug\CSVReader.csprojResolveAssemblyReference.cache
+C:\Personal Projects\TransformationLoader\CSVReader\obj\Debug\CSVReader.dll
+C:\Personal Projects\TransformationLoader\CSVReader\obj\Debug\CSVReader.pdb
