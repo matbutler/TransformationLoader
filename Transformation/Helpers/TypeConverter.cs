@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,6 +51,27 @@ namespace TransformationCore.Helpers
                     return typeof(string);
                 case "BOOL":
                     return typeof(bool);
+                default:
+                    throw new InvalidCastException(string.Format("Invalid type {0}", type));
+            }
+        }
+
+        public static SqlDbType GetDBType(string type)
+        {
+            switch (type.ToUpper())
+            {
+                case "DATETIME":
+                    return SqlDbType.DateTime;
+                case "INT":
+                    return SqlDbType.Int;
+                case "LONG":
+                    return SqlDbType.BigInt;
+                case "DECIMAL":
+                    return SqlDbType.Decimal;
+                case "STRING":
+                    return SqlDbType.NVarChar;
+                case "BOOL":
+                    return SqlDbType.Bit;
                 default:
                     throw new InvalidCastException(string.Format("Invalid type {0}", type));
             }

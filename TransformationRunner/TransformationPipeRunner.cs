@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
+using System.ComponentModel.Composition.Primitives;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -33,10 +34,15 @@ namespace TransformationRunner
         private ILogger _logger;
         private CancellationTokenSource _tokenSource;
         private BlockingCollection<Dictionary<string, object>> _inputQueue;
-        private bool _running = false;
         #endregion
 
         #region "Public Properties"
+        private bool _running = false;
+        public bool Running
+        {
+            get { return _running; }
+        }
+
         private int _pipeCount;
         public int PipeCount
         {
@@ -171,9 +177,8 @@ namespace TransformationRunner
                 SetupGlobalVar();
 
                 var catalog = new DirectoryCatalog("Engine");
-                var container = new CompositionContainer(catalog);
-
-                var reader = GetReader(container);
+                
+                var reader = GetReader(catalog);
 
                 var processId = Guid.NewGuid();
 
@@ -185,7 +190,7 @@ namespace TransformationRunner
 
                 StartReader(token, ETLtasks, reader, rowlogger);
 
-                StartPipes(token, ETLtasks, rowlogger, container);
+                StartPipes(token, ETLtasks, rowlogger, catalog);
 
                 Started?.Invoke();
 
@@ -236,7 +241,7 @@ namespace TransformationRunner
             return errorMsg;
         }
 
-        private void StartPipes(CancellationToken token, Task[] ETLtasks, RowLogger rowlogger, CompositionContainer container)
+        private void StartPipes(CancellationToken token, Task[] ETLtasks, RowLogger rowlogger, DirectoryCatalog catalog)
         {
             for (var i = 1; i <= PipeCount; i++)
             {
@@ -245,7 +250,7 @@ namespace TransformationRunner
                 {
                     try
                     {
-                        var tpipe = new TransformationPipe(_config, GlobalData, _logger, pipeno, container);
+                        var tpipe = new TransformationPipe(_config, GlobalData, _logger, pipeno, catalog);
                         try
                         {
                             tpipe.Load(_inputQueue, ref _rowErrorCount, ref _activePipeCount, ref _rowprocessedCount, token, rowlogger.LogRow);
@@ -286,7 +291,7 @@ namespace TransformationRunner
             }, TaskCreationOptions.LongRunning);
         }
 
-        private IReader GetReader(CompositionContainer container)
+        private IReader GetReader(DirectoryCatalog catalog)
         {
             string readerName = string.Empty;
             string readerVersion = string.Empty;
@@ -303,6 +308,8 @@ namespace TransformationRunner
                 {
                     throw new Exception("Reader name missing from Config.");
                 }
+
+                var container = new CompositionContainer(catalog);
 
                 ReaderFactory LdrFactory = new ReaderFactory();
                 container.ComposeParts(LdrFactory);

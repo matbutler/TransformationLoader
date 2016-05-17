@@ -9,6 +9,7 @@ namespace TransformationCore.Models
     public class ReaderField
     {
         public string Name { get; set; }
+        public string Map { get; set; }
         public int? Index { get; set; }
         public Func<string, object> Converter { get; set; }
     }

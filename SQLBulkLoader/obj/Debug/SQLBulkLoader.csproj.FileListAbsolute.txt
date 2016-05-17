@@ -3,3 +3,5 @@ C:\Personal Projects\TransformationLoader\PipeTest\bin\Debug\Engine\SQLBulkLoade
 C:\Personal Projects\TransformationLoader\SQLBulkLoader\obj\Debug\SQLBulkLoader.csprojResolveAssemblyReference.cache
 C:\Personal Projects\TransformationLoader\SQLBulkLoader\obj\Debug\SQLBulkLoader.dll
 C:\Personal Projects\TransformationLoader\SQLBulkLoader\obj\Debug\SQLBulkLoader.pdb
+C:\Personal Projects\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\SQLBulkLoader.dll
+C:\Personal Projects\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\SQLBulkLoader.pdb

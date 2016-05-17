@@ -20,7 +20,7 @@ namespace TransformationCore
         protected Dictionary<string, object> GlobalData { get; set; }
         protected long RowNo { get; set; }
 
-        public bool Initialise(XElement configXML, Dictionary<string, object> globalData, ILogger logger)
+        public void Initialise(XElement configXML, Dictionary<string, object> globalData, ILogger logger)
         {
             GlobalData = globalData;
 
@@ -31,7 +31,7 @@ namespace TransformationCore
                 ConfigureFilters(configXML);
             }
 
-            return Initialise(configXML, logger);
+            Initialise(configXML, logger);
         }
 
         private void SetupFields(XElement configXML)
@@ -67,12 +67,12 @@ namespace TransformationCore
             var tranFld = new TransformationField()
             {
                 Name = PropName,
-                Map = string.IsNullOrEmpty(mappedName) ? mappedName : PropName,
+                Map = !string.IsNullOrEmpty(mappedName) ? mappedName : PropName,
                 Required = attr.Required,
                 FldType = attr.FieldType,
             };
 
-            if (tranFld.Name.StartsWith("@"))
+            if (tranFld.Map.StartsWith("@"))
             {
                 tranFld.IsGlobalVar = true;
                 object globalObject = null;
@@ -118,9 +118,14 @@ namespace TransformationCore
             }
         }
 
-        protected abstract bool Initialise(XElement configXML, ILogger logger);
+        protected abstract void Initialise(XElement configXML, ILogger logger);
         protected abstract void Transform();
-        public abstract void Close();
+
+        public virtual void Close()
+        {
+
+        }
+
         protected virtual void PreTransform(Dictionary<string, object> row)
         {
         }

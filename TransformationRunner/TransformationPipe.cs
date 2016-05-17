@@ -22,8 +22,6 @@ namespace TransformationRunner
         private int _pipeNumber = -1;
 
         private ILogger _logger;
-        private bool _disposed = false;
-
         #endregion
 
         #region "Public Functions"
@@ -34,7 +32,7 @@ namespace TransformationRunner
         /// <param name="globalDS">The global dataset used to store common lookup tables</param> 
         /// <param name="logger">The UI Logging Object</param> 
         /// <param name="pipeNumber">The number of the pipe(thread) this transformation pipe is in</param> 
-        public TransformationPipe(XElement config, Dictionary<string, object> globalData, ILogger logger, int pipeNumber, CompositionContainer container)
+        public TransformationPipe(XElement config, Dictionary<string, object> globalData, ILogger logger, int pipeNumber, DirectoryCatalog catalog)
         {
             _logger = logger;
             _pipeNumber = pipeNumber;
@@ -53,6 +51,8 @@ namespace TransformationRunner
 
             SetErrorsAllowed(pipeElement, mgslvl);
 
+            var container = new CompositionContainer(catalog);
+
             CreateTransformations(globalData, pipeElement, container, mgslvl);
         }
 
@@ -64,19 +64,14 @@ namespace TransformationRunner
             {
                 count++;
 
-                if (tranConfig.Attribute("name") == null)
+                var tranName = tranConfig.Attribute("name")?.Value;
+
+                if (string.IsNullOrWhiteSpace(tranName))
                 {
                     throw new TransformationPipeException(string.Format("Incorrect Transformation Config : Missing Name : {0}", tranConfig));
                 }
 
-                var tranName = tranConfig.Attribute("name").Value;
-
-                string tranVersion = string.Empty;
-
-                if (tranConfig.Attribute("version") != null)
-                {
-                    tranVersion = tranConfig.Attribute("version").Value;
-                }
+                string tranVersion = tranConfig.Attribute("version")?.Value ?? "";
 
                 try
                 {

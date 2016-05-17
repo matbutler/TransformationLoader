@@ -17,7 +17,7 @@ namespace SQLBulkLoader
     [PartCreationPolicy(CreationPolicy.NonShared)]
     [ExportMetadata("Name", "SQLBulkLoader")]
     [ExportMetadata("Version", "1.0.0")]
-    public class SQLBulkLoader : Transformation
+    public class SQLBulkLoader : Transformation, IDisposable
     {
         private static DataTable _loggingTable;
         private static string _tablename;
@@ -29,7 +29,7 @@ namespace SQLBulkLoader
         private static object _initialisationObject = new object();
         private static Dictionary<string, string> _columns = new Dictionary<string, string>();
 
-        protected override bool Initialise(XElement configXML, ILogger logger)
+        protected override void Initialise(XElement configXML, ILogger logger)
         {
             if (configXML == null)
             {
@@ -42,8 +42,8 @@ namespace SQLBulkLoader
             {
                 if (_initailised)
                 {
-                    logger.Log("Already initailised", TransformationCore.Enums.MessageLevel.Info);
-                    return true;
+                    logger.Log("Already initailised", TransformationCore.Enums.MessageLevel.Debug);
+                    return;
                 }
 
                 _tablename = configXML.Attribute("tablename")?.Value;
@@ -64,8 +64,6 @@ namespace SQLBulkLoader
 
                 _initailised = true;
             }
-
-            return true;
         }
 
         private static void SetupDatatable(XElement configXML)
@@ -83,7 +81,7 @@ namespace SQLBulkLoader
                 var name = column.Attribute("name")?.Value;
                 var type = column.Attribute("type")?.Value;
                 var format = column.Attribute("format")?.Value;
-                var map = string.IsNullOrWhiteSpace(column.Attribute("map")?.Value) ? name : column.Attribute("map").Value;
+                var map = string.IsNullOrWhiteSpace(column.Attribute("map")?.Value) ? name.ToLower() : column.Attribute("map").Value;
 
                 _columns.Add(name, map);
 
@@ -154,6 +152,11 @@ namespace SQLBulkLoader
             {
                 BulkCopy();
             }
+        }
+
+        public void Dispose()
+        {
+            Close();
         }
     }
 }

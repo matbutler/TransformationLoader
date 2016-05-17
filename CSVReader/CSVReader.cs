@@ -71,6 +71,7 @@ namespace CSVReader
                 }
 
                 var name = configField.Attribute("name").Value;
+                var map = configField.Attribute("map")?.Value ?? name.ToLower();
                 var type = configField.Attribute("type").Value.ToUpper();
                 int? index = null;
 
@@ -88,6 +89,7 @@ namespace CSVReader
                 readerFields.Add(new ReaderField
                 {
                     Name = name,
+                    Map = map,
                     Index = index,
                     Converter = TypeConverter.GetConverter(type, configField.Attribute("format")?.Value),
                 });
@@ -109,7 +111,7 @@ namespace CSVReader
 
                     foreach (var field in _fields)
                     {
-                        row.Add(field.Name, field.Converter(csv[field.Index.Value]));
+                        row.Add(field.Map, field.Converter(csv[field.Index.Value]));
                     }
 
                     row.Add("#row", csv.CurrentRecordIndex);

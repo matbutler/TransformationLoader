@@ -9,6 +9,7 @@ namespace TransformationRunner
     {
         [ImportMany(RequiredCreationPolicy = CreationPolicy.NonShared)]
         private Lazy<IReader, IDictionary<string, object>>[] _availableReaders;
+
         /// <summary> 
         /// The Allows MEF to produce multiple instances of the same transformation Classes
         /// </summary> 
