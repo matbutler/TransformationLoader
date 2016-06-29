@@ -1,4 +1,6 @@
-﻿namespace FileProcessing.Loader.Models
+﻿using System.Xml.Linq;
+
+namespace FileProcessing.Loader.Models
 {
     public class ProcessFile
     {

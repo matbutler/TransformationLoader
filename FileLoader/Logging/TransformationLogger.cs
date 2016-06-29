@@ -30,6 +30,7 @@ namespace FileProcessing.Loader.Helper
                     break;
                 default:
                     _logger.Error(message);
+                    break;
             }
         }
     }
