@@ -1,7 +1,0 @@
-C:\Personal Projects\TransformationLoader\Transformation\TransformationLoadTest\bin\Debug\Engine\EmailValidator.dll
-C:\Personal Projects\TransformationLoader\Transformation\TransformationLoadTest\bin\Debug\Engine\EmailValidator.pdb
-C:\Personal Projects\TransformationLoader\Transformation\EmailValidator\obj\Debug\EmailValidator.dll
-C:\Personal Projects\TransformationLoader\Transformation\EmailValidator\obj\Debug\EmailValidator.pdb
-C:\Personal Projects\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\EmailValidator.dll
-C:\Personal Projects\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\EmailValidator.pdb
-C:\Personal Projects\TransformationLoader\Transformation\EmailValidator\obj\Debug\EmailValidator.csprojResolveAssemblyReference.cache
