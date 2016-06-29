@@ -1,7 +1,6 @@
 ﻿using System.Data.SqlClient;
-using System.Text.RegularExpressions;
 
-namespace FileWatcher
+namespace FileProcessing.Watcher
 {
     public class FileProcessQueue : IFileProcessQueue
     {

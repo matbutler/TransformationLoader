@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
-using TransformationRunner;
+using Transformation.Loader;
 
 namespace PipeTest
 {
@@ -13,7 +9,7 @@ namespace PipeTest
         static void Main(string[] args)
         {
             var config = XElement.Parse(@"<loadscript>
-                                            <globalvar name=""connection"" value=""Server=localhost;Database=TestLoad;Trusted_Connection=True;"" valuetype=""string"" />
+                                            <globalvar name=""connection"" value=""Server=WORK_PC\SQLEXPRESS;Database=TestLoad;Trusted_Connection=True;"" valuetype=""string"" />
                                             <reader name=""CSVReader"" delimeter=""|"">
                                                 <fields>
                                                     <field name=""personnel number"" type=""int""/>
@@ -32,7 +28,7 @@ namespace PipeTest
                                         ");
 
 
-            var runner = new PipeRunner(config);
+            var runner = new LoadProcess(config);
 
             runner.Start(@"c:\temp\stafftest.csv", new ConsoleLogger());
 

@@ -15,3 +15,5 @@ C:\Personal Projects\TransformationLoader\CSVReader\obj\Debug\CSVReader.dll
 C:\Personal Projects\TransformationLoader\CSVReader\obj\Debug\CSVReader.pdb
 C:\Personal Projects\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\CSVReader.dll
 C:\Personal Projects\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\CSVReader.pdb
+C:\Project\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\CSVReader.dll
+C:\Project\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\CSVReader.pdb

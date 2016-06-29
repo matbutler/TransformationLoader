@@ -4,7 +4,7 @@ using System.ComponentModel.Composition;
 using TransformationCore;
 using TransformationCore.Exceptions;
 
-namespace TransformationRunner
+namespace Transformation.Loader
 {
     public class TransformationFactory
     {

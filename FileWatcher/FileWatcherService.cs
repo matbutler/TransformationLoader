@@ -1,8 +1,8 @@
-﻿using System;
+﻿using FileProcessing.Core;
 using System.Configuration;
 using System.IO;
 
-namespace FileWatcher
+namespace FileProcessing.Watcher
 {
     public class FileWatcherService : IService
     {

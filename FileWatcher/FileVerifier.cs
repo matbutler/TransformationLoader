@@ -3,22 +3,22 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace FileWatcher
+namespace FileProcessing.Watcher
 {
     public class FileVerifier : IFileVerifier
     {
-        private readonly Dictionary<int, Regex> _fileConfigurations;
+        private readonly string _connectionString;
 
         public FileVerifier(string connectionString)
         {
-            _fileConfigurations = GetFileConfigurations(connectionString);
+            _connectionString = connectionString;
         }
 
-        private static Dictionary<int, Regex> GetFileConfigurations(string connectionString)
+        private Dictionary<int, Regex> GetFileConfigurations()
         {
             var patterns = new Dictionary<int, Regex>();
 
-            using (var connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(_connectionString))
             using (var command = new SqlCommand("GetFilePatterns", connection))
             {
                 connection.Open();
@@ -40,11 +40,11 @@ namespace FileWatcher
         public bool RequiresProcessing(string fileName, out int fileConfigId)
         {
             fileConfigId = 0;
-            var fileConfiguration = _fileConfigurations.Where(x => x.Value.IsMatch(fileName)).Select(x=>(int?)x.Key).FirstOrDefault();
+            var fileConfiguration = GetFileConfigurations().Where(x => x.Value.IsMatch(fileName)).Select(x=>(int?)x.Key).FirstOrDefault();
 
             if (!fileConfiguration.HasValue)
             {
-
+                return false;
             }
 
             fileConfigId = fileConfiguration.Value;

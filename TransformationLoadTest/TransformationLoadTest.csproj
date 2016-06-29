@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TransformationLoadTest</RootNamespace>
     <AssemblyName>TransformationLoadTest</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -66,6 +67,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -81,9 +83,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TransformationRunner\TransformationRunner.csproj">
+    <ProjectReference Include="..\TransformationRunner\Transformation.Loader.csproj">
       <Project>{b64d5360-cf21-41fc-af36-83e9d1fb6a21}</Project>
-      <Name>TransformationRunner</Name>
+      <Name>Transformation.Loader</Name>
     </ProjectReference>
     <ProjectReference Include="..\Transformation\TransformationCore.csproj">
       <Project>{ee3c4f3c-c316-4a17-9730-6280d948c2da}</Project>

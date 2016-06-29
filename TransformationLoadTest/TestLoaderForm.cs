@@ -1,16 +1,11 @@
 ﻿using PipeTest;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using Transformation.Loader;
 using TransformationCore.Interfaces;
-using TransformationRunner;
 
 namespace TransformationLoadTest
 {
@@ -18,7 +13,7 @@ namespace TransformationLoadTest
     {
         private string _filename = string.Empty;
         private readonly ILogger _logger;
-        private PipeRunner _runner;
+        private LoadProcess _runner;
 
 
         public LoadTestForm()
@@ -74,7 +69,7 @@ namespace TransformationLoadTest
 
             statusListBox.Items.Clear();
 
-            _runner = new PipeRunner(config);
+            _runner = new LoadProcess(config);
 
             _runner.Start(_filename, _logger);
         }

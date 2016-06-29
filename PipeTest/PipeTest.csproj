@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PipeTest</RootNamespace>
     <AssemblyName>PipeTest</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -51,9 +52,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TransformationRunner\TransformationRunner.csproj">
+    <ProjectReference Include="..\TransformationRunner\Transformation.Loader.csproj">
       <Project>{b64d5360-cf21-41fc-af36-83e9d1fb6a21}</Project>
-      <Name>TransformationRunner</Name>
+      <Name>Transformation.Loader</Name>
     </ProjectReference>
     <ProjectReference Include="..\Transformation\TransformationCore.csproj">
       <Project>{EE3C4F3C-C316-4A17-9730-6280D948C2DA}</Project>

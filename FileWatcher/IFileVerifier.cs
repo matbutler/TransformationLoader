@@ -1,4 +1,4 @@
-﻿namespace FileWatcher
+﻿namespace FileProcessing.Watcher
 {
     public interface IFileVerifier
     {

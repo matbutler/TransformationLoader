@@ -11,3 +11,16 @@ C:\Personal Projects\TransformationLoader\TransformationLoadTest\bin\Debug\Trans
 C:\Personal Projects\TransformationLoader\TransformationLoadTest\bin\Debug\TransformationCore.pdb
 C:\Personal Projects\TransformationLoader\TransformationLoadTest\obj\Debug\TransformationLoadTest.exe
 C:\Personal Projects\TransformationLoader\TransformationLoadTest\obj\Debug\TransformationLoadTest.pdb
+C:\Project\TransformationLoader\TransformationLoadTest\bin\Debug\TransformationLoadTest.exe.config
+C:\Project\TransformationLoader\TransformationLoadTest\bin\Debug\TransformationLoadTest.exe
+C:\Project\TransformationLoader\TransformationLoadTest\bin\Debug\TransformationLoadTest.pdb
+C:\Project\TransformationLoader\TransformationLoadTest\bin\Debug\Transformation.Loader.dll
+C:\Project\TransformationLoader\TransformationLoadTest\bin\Debug\TransformationCore.dll
+C:\Project\TransformationLoader\TransformationLoadTest\bin\Debug\Transformation.Loader.pdb
+C:\Project\TransformationLoader\TransformationLoadTest\bin\Debug\TransformationCore.pdb
+C:\Project\TransformationLoader\TransformationLoadTest\obj\Debug\TransformationLoadTest.csprojResolveAssemblyReference.cache
+C:\Project\TransformationLoader\TransformationLoadTest\obj\Debug\TransformationLoadTest.LoadTestForm.resources
+C:\Project\TransformationLoader\TransformationLoadTest\obj\Debug\TransformationLoadTest.Properties.Resources.resources
+C:\Project\TransformationLoader\TransformationLoadTest\obj\Debug\TransformationLoadTest.csproj.GenerateResource.Cache
+C:\Project\TransformationLoader\TransformationLoadTest\obj\Debug\TransformationLoadTest.exe
+C:\Project\TransformationLoader\TransformationLoadTest\obj\Debug\TransformationLoadTest.pdb

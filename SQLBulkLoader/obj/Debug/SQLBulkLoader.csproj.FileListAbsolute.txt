@@ -5,3 +5,8 @@ C:\Personal Projects\TransformationLoader\SQLBulkLoader\obj\Debug\SQLBulkLoader.
 C:\Personal Projects\TransformationLoader\SQLBulkLoader\obj\Debug\SQLBulkLoader.pdb
 C:\Personal Projects\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\SQLBulkLoader.dll
 C:\Personal Projects\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\SQLBulkLoader.pdb
+C:\Project\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\SQLBulkLoader.dll
+C:\Project\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\SQLBulkLoader.pdb
+C:\Project\TransformationLoader\SQLBulkLoader\obj\Debug\SQLBulkLoader.csprojResolveAssemblyReference.cache
+C:\Project\TransformationLoader\SQLBulkLoader\obj\Debug\SQLBulkLoader.dll
+C:\Project\TransformationLoader\SQLBulkLoader\obj\Debug\SQLBulkLoader.pdb

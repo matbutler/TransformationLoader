@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using TransformationCore.Interfaces;
 
-namespace TransformationRunner
+namespace Transformation.Loader
 {
     public class ReaderFactory
     {

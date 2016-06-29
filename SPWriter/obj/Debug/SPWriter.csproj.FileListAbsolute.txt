@@ -5,3 +5,8 @@ C:\Personal Projects\TransformationLoader\SPWriter\obj\Debug\SPWriter.dll
 C:\Personal Projects\TransformationLoader\SPWriter\obj\Debug\SPWriter.pdb
 C:\Personal Projects\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\SPWriter.dll
 C:\Personal Projects\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\SPWriter.pdb
+C:\Project\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\SPWriter.dll
+C:\Project\TransformationLoader\TransformationLoadTest\bin\Debug\Engine\SPWriter.pdb
+C:\Project\TransformationLoader\SPWriter\obj\Debug\SPWriter.csprojResolveAssemblyReference.cache
+C:\Project\TransformationLoader\SPWriter\obj\Debug\SPWriter.dll
+C:\Project\TransformationLoader\SPWriter\obj\Debug\SPWriter.pdb

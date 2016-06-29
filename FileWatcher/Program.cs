@@ -1,8 +1,8 @@
-﻿using FileWatcher.Logging;
-using FileWatcher.Setup;
+﻿using FileWatcher.Setup;
+using Logging;
 using Topshelf;
 
-namespace FileWatcher
+namespace FileProcessing.Watcher
 {
     class Program
     {

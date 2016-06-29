@@ -2,7 +2,7 @@
 using log4net.Config;
 using System;
 
-namespace FileWatcher.Logging
+namespace Logging
 {
     public class Log4NetLogger : ILogger
     {

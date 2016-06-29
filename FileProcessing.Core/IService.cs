@@ -1,4 +1,4 @@
-﻿namespace FileWatcher
+﻿namespace FileProcessing.Core
 {
     public interface IService
     {

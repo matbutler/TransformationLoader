@@ -3,12 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
-using System.ComponentModel.Composition.Primitives;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -16,9 +11,9 @@ using TransformationCore.Enums;
 using TransformationCore.Helpers;
 using TransformationCore.Interfaces;
 
-namespace TransformationRunner
+namespace Transformation.Loader
 {
-    public class PipeRunner
+    public class LoadProcess
     {
         #region "Public Events"
         public event StartedEventHandler Started;
@@ -87,7 +82,7 @@ namespace TransformationRunner
 
         #endregion
 
-        public PipeRunner(XElement config)
+        public LoadProcess(XElement config)
         {
             if (config == null)
             {
@@ -151,7 +146,7 @@ namespace TransformationRunner
         public async void Start(string fileName,ILogger logger)
         {
             //Create Logging Timer
-            _LogTimer = new System.Threading.Timer(LogTimerTick, null, 10000, 10000);
+            _LogTimer = new Timer(LogTimerTick, null, 10000, 10000);
 
             _logger = logger;
 
@@ -246,14 +241,18 @@ namespace TransformationRunner
             for (var i = 1; i <= PipeCount; i++)
             {
                 var pipeno = i;
+
+                var pipeBuilder = new PipeBuilder(_config, GlobalData, _logger, catalog);
+
                 ETLtasks[i] = Task.Factory.StartNew(() =>
                 {
                     try
                     {
-                        var tpipe = new TransformationPipe(_config, GlobalData, _logger, pipeno, catalog);
+                        var pipe = pipeBuilder.Build(pipeno);
+                        var tpipe = new PipeRunner(pipeno, pipe, 1, _logger);
                         try
                         {
-                            tpipe.Load(_inputQueue, ref _rowErrorCount, ref _activePipeCount, ref _rowprocessedCount, token, rowlogger.LogRow);
+                           tpipe.Load(_inputQueue, ref _rowErrorCount, ref _activePipeCount, ref _rowprocessedCount, token, rowlogger.LogRow);
                         }
                         finally
                         {
