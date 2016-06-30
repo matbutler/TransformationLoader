@@ -7,8 +7,11 @@ namespace Transformation.Loader
 {
     public class ReaderFactory
     {
+
+#pragma warning disable 0649
         [ImportMany(RequiredCreationPolicy = CreationPolicy.NonShared)]
         private Lazy<IReader, IDictionary<string, object>>[] _availableReaders;
+#pragma warning restore 0649
 
         /// <summary> 
         /// The Allows MEF to produce multiple instances of the same transformation Classes

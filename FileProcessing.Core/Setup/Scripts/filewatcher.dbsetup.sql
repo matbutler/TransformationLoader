@@ -1,4 +1,8 @@
-﻿IF NOT EXISTS ( SELECT * FROM sys.objects WHERE type = 'U' AND name = 'FileProcessConfig' ) BEGIN
+﻿DROP TABLE FileProcessConfig
+DROP TABLE FileProcessQueue
+DROP TABLE FileProcessAudit
+
+IF NOT EXISTS ( SELECT * FROM sys.objects WHERE type = 'U' AND name = 'FileProcessConfig' ) BEGIN
 	CREATE TABLE [dbo].[FileProcessConfig](
 		[Id]				INT IDENTITY(1,1) NOT NULL,
 		[Filepattern]		NVARCHAR(max) NOT NULL,
@@ -27,6 +31,18 @@ IF NOT EXISTS ( SELECT * FROM sys.objects WHERE type = 'U' AND name = 'FileProce
 	)
 END
 
+IF NOT EXISTS ( SELECT * FROM sys.objects WHERE type = 'U' AND name = 'FileProcessAudit' ) BEGIN
+	CREATE TABLE [dbo].[FileProcessAudit](
+		[Id]					INT IDENTITY(1,1) NOT NULL,
+		[Filepath]				NVARCHAR(max) NOT NULL,
+		[AddedDate]				DATETIME NOT NULL,
+		CONSTRAINT [PK_FileProcessAudit] PRIMARY KEY CLUSTERED 
+		(
+			[Id] ASC
+		)
+	)
+END
+
 IF EXISTS ( SELECT * FROM sys.objects WHERE type = 'P' AND name = 'GetFilePatterns' ) BEGIN
 	DROP PROCEDURE GetFilePatterns
 END
@@ -35,6 +51,20 @@ EXEC('CREATE PROCEDURE GetFilePatterns
 AS
 BEGIN
 	SELECT [Id],[Filepattern] FROM [FileProcessConfig]
+END')
+
+IF EXISTS ( SELECT * FROM sys.objects WHERE type = 'P' AND name = 'FileProcessAudit' ) BEGIN
+	DROP PROCEDURE FileProcessEnqueue
+END
+
+EXEC('CREATE PROCEDURE FileProcessAudit
+	@Filepath NVARCHAR(MAX)
+AS
+BEGIN
+	INSERT INTO [FileProcessAudit] ([Filepath], [AddedDate])
+	SELECT
+		@Filepath,
+		GETDATE()
 END')
 
 IF EXISTS ( SELECT * FROM sys.objects WHERE type = 'P' AND name = 'FileProcessEnqueue' ) BEGIN

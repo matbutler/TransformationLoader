@@ -1,7 +1,9 @@
-﻿namespace FileProcessing.Watcher
+﻿using FileProcessing.Core.Enums;
+
+namespace FileProcessing.Watcher
 {
     public interface IFileProcessQueue
     {
-        void Enqueue(string filepath, int fileConfigId);
+        ProcessStatus Enqueue(string filepath, int fileConfigId);
     }
 }

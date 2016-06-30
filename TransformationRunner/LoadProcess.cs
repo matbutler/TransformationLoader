@@ -15,19 +15,12 @@ namespace Transformation.Loader
 {
     public class LoadProcess
     {
-        #region "Public Events"
-        public event StartedEventHandler Started;
-        public delegate void StartedEventHandler();
-        public event FinishedEventHandler Finished;
-        public delegate void FinishedEventHandler(bool success);
-        #endregion
-
         #region "Private Variables"
         private Stopwatch _sw = new Stopwatch();
 
         private System.Threading.Timer _LogTimer;
         private ILogger _logger;
-        private CancellationTokenSource _tokenSource;
+        private CancellationTokenSource _cancellationTokenSource;
         private BlockingCollection<Dictionary<string, object>> _inputQueue;
         #endregion
 
@@ -82,7 +75,7 @@ namespace Transformation.Loader
 
         #endregion
 
-        public LoadProcess(XElement config)
+        public LoadProcess(XElement config, CancellationTokenSource cancellationTokenSource)
         {
             if (config == null)
             {
@@ -90,6 +83,7 @@ namespace Transformation.Loader
             }
 
             _config = config;
+            _cancellationTokenSource = cancellationTokenSource;
         }
 
         #region "Private Functions"
@@ -105,10 +99,6 @@ namespace Transformation.Loader
             Thread.Sleep(1000);
 
             _running = false;
-            if (Finished != null)
-            {
-                Finished(success);
-            }
         }
 
         private void LogTimerTick(object state)
@@ -153,16 +143,12 @@ namespace Transformation.Loader
             if (_running)
             {
                 _logger.Log("Process : The process is already running", MessageLevel.Critical);
-                if (Finished != null)
-                {
-                    Finished(false);
-                }
                 return;
             }
 
             Initialise();
 
-            CancellationToken token = _tokenSource.Token;
+            CancellationToken token = _cancellationTokenSource.Token;
             Task[] ETLtasks = new Task[PipeCount + 1];
 
             _logger.Log(string.Format("Process : Started (Pipes = {0})", _pipeCount), MessageLevel.Action);
@@ -186,8 +172,6 @@ namespace Transformation.Loader
                 StartReader(token, ETLtasks, reader, rowlogger);
 
                 StartPipes(token, ETLtasks, rowlogger, catalog);
-
-                Started?.Invoke();
 
                 bool success = false;
                 string errorMsg = string.Empty;
@@ -262,7 +246,7 @@ namespace Transformation.Loader
                     }
                     catch (Exception ex)
                     {
-                        _tokenSource.Cancel();
+                        _cancellationTokenSource.Cancel();
 
                         throw new Exception(string.Format("Pipe {0} : {1}", pipeno, ex.Message));
                     }
@@ -324,7 +308,6 @@ namespace Transformation.Loader
         private void Initialise()
         {
             _running = true;
-            _tokenSource = new CancellationTokenSource();
             _rowErrorCount = 0;
             _rowprocessedCount = 0;
             _rowSkippedCount = 0;
@@ -342,14 +325,6 @@ namespace Transformation.Loader
             }
 
             _inputQueue = new BlockingCollection<Dictionary<string, object>>(maxQueue);
-        }
-
-        public void Cancel()
-        {
-            if (_tokenSource != null)
-            {
-                _tokenSource.Cancel();
-            }
         }
         #endregion
     }

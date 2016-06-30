@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TransformationRunner\Transformation.Loader.csproj">
-      <Project>{b64d5360-cf21-41fc-af36-83e9d1fb6a21}</Project>
+      <Project>{B64D5360-CF21-41FC-AF36-83E9D1FB6A21}</Project>
       <Name>Transformation.Loader</Name>
     </ProjectReference>
     <ProjectReference Include="..\Transformation\TransformationCore.csproj">

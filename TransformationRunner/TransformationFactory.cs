@@ -8,9 +8,12 @@ namespace Transformation.Loader
 {
     public class TransformationFactory
     {
-        [ImportMany(RequiredCreationPolicy = CreationPolicy.NonShared)]
 
+#pragma warning disable 0649
+        [ImportMany(RequiredCreationPolicy = CreationPolicy.NonShared)]
         private Lazy<ITransformation, IDictionary<string, object>>[] _availableTransformations;
+#pragma warning restore 0649
+
         /// <summary> 
         /// The Allows MEF to produce multiple instances of the same transformation Classes
         /// </summary> 

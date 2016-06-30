@@ -1,4 +1,5 @@
-﻿using System.Data.SqlClient;
+﻿using FileProcessing.Core.Enums;
+using System.Data.SqlClient;
 
 namespace FileProcessing.Watcher
 {
@@ -10,7 +11,7 @@ namespace FileProcessing.Watcher
             _connectionString = connectionString;
         }
 
-        public void Enqueue(string filepath, int fileConfigId)
+        public ProcessStatus Enqueue(string filepath, int fileConfigId)
         {
             using (var connection = new SqlConnection(_connectionString))
             using (var command = new SqlCommand("FileProcessEnqueue", connection))
@@ -20,7 +21,9 @@ namespace FileProcessing.Watcher
                 command.Parameters.AddWithValue("@FileConfigId", fileConfigId);
                 command.Parameters.AddWithValue("@Filepath", filepath);
 
-                command.ExecuteNonQuery();
+                var result = command.ExecuteScalar();
+
+                return (ProcessStatus)result;
             }
         }
 

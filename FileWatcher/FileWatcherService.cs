@@ -9,6 +9,7 @@ namespace FileProcessing.Watcher
         private readonly FileSystemWatcher _fileSystemWatcher;
         private readonly IFileProcessQueue _fileProcessQueue;
         private readonly IFileVerifier _fileVerifier;
+        private readonly IFileWatchAudit _fileWatchAudit;
 
         public FileWatcherService()
         {
@@ -21,6 +22,7 @@ namespace FileProcessing.Watcher
 
             _fileProcessQueue = new FileProcessQueue(ConfigurationManager.ConnectionStrings["FileWatcher"].ConnectionString);
             _fileVerifier = new FileVerifier(ConfigurationManager.ConnectionStrings["FileWatcher"].ConnectionString);
+            _fileWatchAudit = new FileWatchAudit(ConfigurationManager.ConnectionStrings["FileWatcher"].ConnectionString);
         }
 
         private void OnChanged(object sender, FileSystemEventArgs e)
@@ -28,6 +30,7 @@ namespace FileProcessing.Watcher
             int fileConfigId = 0;
             if (_fileVerifier.RequiresProcessing(e.FullPath, out fileConfigId))
             {
+                _fileWatchAudit.Log(e.FullPath);
                 _fileProcessQueue.Enqueue(e.FullPath, fileConfigId);
             }
         }

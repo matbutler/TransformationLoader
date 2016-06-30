@@ -51,9 +51,11 @@
   <ItemGroup>
     <Compile Include="FileProcessQueue.cs" />
     <Compile Include="FileVerifier.cs" />
+    <Compile Include="FileWatchAudit.cs" />
     <Compile Include="FileWatcherService.cs" />
     <Compile Include="IFileProcessQueue.cs" />
     <Compile Include="IFileVerifier.cs" />
+    <Compile Include="IFileWatchAudit.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Setup\DBSetup.cs" />
@@ -67,7 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FileProcessing.Core\FileProcessing.Core.csproj">
-      <Project>{93f43588-90d6-44e6-9201-53b2ff6b892e}</Project>
+      <Project>{93F43588-90D6-44E6-9201-53B2FF6B892E}</Project>
       <Name>FileProcessing.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Logging\Logging.csproj">

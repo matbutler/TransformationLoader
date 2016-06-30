@@ -28,7 +28,7 @@ namespace PipeTest
                                         ");
 
 
-            var runner = new LoadProcess(config);
+            var runner = new LoadProcess(config, new System.Threading.CancellationTokenSource());
 
             runner.Start(@"c:\temp\stafftest.csv", new ConsoleLogger());
 
