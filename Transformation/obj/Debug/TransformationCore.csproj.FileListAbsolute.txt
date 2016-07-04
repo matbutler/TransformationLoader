@@ -11,3 +11,4 @@ C:\Personal Projects\TransformationLoader\Transformation\bin\Debug\log4net.dll
 C:\Personal Projects\TransformationLoader\Transformation\bin\Debug\log4net.xml
 C:\Personal Projects\TransformationLoader\Transformation\obj\Debug\TransformationCore.dll
 C:\Personal Projects\TransformationLoader\Transformation\obj\Debug\TransformationCore.pdb
+C:\Personal Projects\TransformationLoader\Transformation\obj\Debug\TransformationCore.csprojResolveAssemblyReference.cache

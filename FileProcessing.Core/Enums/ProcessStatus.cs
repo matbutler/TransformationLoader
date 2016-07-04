@@ -6,5 +6,6 @@
         Processing = 2,
         Completed = 3,
         CompletedWithErrors = 4,
+        ReProcess = 5,
     }
 }

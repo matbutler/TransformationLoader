@@ -1,4 +1,4 @@
-﻿using FileWatcher.Setup;
+﻿using FileProcessing.Core.Setup;
 using Logging;
 using Topshelf;
 

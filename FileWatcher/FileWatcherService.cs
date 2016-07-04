@@ -1,4 +1,6 @@
 ﻿using FileProcessing.Core;
+using Logging;
+using System;
 using System.Configuration;
 using System.IO;
 
@@ -10,6 +12,7 @@ namespace FileProcessing.Watcher
         private readonly IFileProcessQueue _fileProcessQueue;
         private readonly IFileVerifier _fileVerifier;
         private readonly IFileWatchAudit _fileWatchAudit;
+        private readonly ILogger _logger;
 
         public FileWatcherService()
         {
@@ -20,18 +23,28 @@ namespace FileProcessing.Watcher
             _fileSystemWatcher.Filter = "*.*";
             _fileSystemWatcher.Path = ConfigurationManager.AppSettings["WatchPath"];
 
-            _fileProcessQueue = new FileProcessQueue(ConfigurationManager.ConnectionStrings["FileWatcher"].ConnectionString);
-            _fileVerifier = new FileVerifier(ConfigurationManager.ConnectionStrings["FileWatcher"].ConnectionString);
-            _fileWatchAudit = new FileWatchAudit(ConfigurationManager.ConnectionStrings["FileWatcher"].ConnectionString);
+            var connectionstring = ConfigurationManager.ConnectionStrings["FileWatcher"].ConnectionString;
+
+            _fileProcessQueue = new FileProcessQueue(connectionstring);
+            _fileVerifier = new FileVerifier(connectionstring);
+            _fileWatchAudit = new FileWatchAudit(connectionstring);
+            _logger = new Log4NetLogger(typeof(FileWatcherService));
         }
 
         private void OnChanged(object sender, FileSystemEventArgs e)
         {
             int fileConfigId = 0;
-            if (_fileVerifier.RequiresProcessing(e.FullPath, out fileConfigId))
+            try
             {
-                _fileWatchAudit.Log(e.FullPath);
-                _fileProcessQueue.Enqueue(e.FullPath, fileConfigId);
+                if (_fileVerifier.RequiresProcessing(e.FullPath, out fileConfigId))
+                {
+                    var fileAction = _fileProcessQueue.Enqueue(e.FullPath, fileConfigId);
+                    _fileWatchAudit.Log(e.FullPath, fileAction);
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.Error("Error Adding File to Queue", ex);
             }
         }
 

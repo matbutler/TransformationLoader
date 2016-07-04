@@ -11,7 +11,7 @@ namespace FileProcessing.Watcher
             _connectionString = connectionString;
         }
 
-        public ProcessStatus Enqueue(string filepath, int fileConfigId)
+        public FileAction Enqueue(string filepath, int fileConfigId)
         {
             using (var connection = new SqlConnection(_connectionString))
             using (var command = new SqlCommand("FileProcessEnqueue", connection))
@@ -23,7 +23,7 @@ namespace FileProcessing.Watcher
 
                 var result = command.ExecuteScalar();
 
-                return (ProcessStatus)result;
+                return (FileAction)result;
             }
         }
 

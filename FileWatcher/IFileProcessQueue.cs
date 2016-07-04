@@ -4,6 +4,6 @@ namespace FileProcessing.Watcher
 {
     public interface IFileProcessQueue
     {
-        ProcessStatus Enqueue(string filepath, int fileConfigId);
+        FileAction Enqueue(string filepath, int fileConfigId);
     }
 }

@@ -6,19 +6,20 @@ using FileProcessing.Loader.Helper;
 using System.Configuration;
 using System.Threading;
 using FileProcessing.Loader.Models;
+using Logging;
 
 namespace FileProcessing.Loader
 {
     public class FileLoaderService : IService
     {
-        private readonly TransformationCore.Interfaces.ILogger _logger;
         private readonly int _pollingTime;
+        private readonly ILogger _logger;
         private CancellationTokenSource _cancellationTokenSource;
         private Task _loadProcessLoopTask;
 
         public FileLoaderService()
         {
-            _logger = new TransformationLogger(new Logging.Log4NetLogger(typeof(FileLoaderService)));
+            _logger = new Log4NetLogger(typeof(FileLoaderService));
             _pollingTime = int.Parse(ConfigurationManager.AppSettings["PollingTimeSeconds"]) * 1000;
         }
 
@@ -32,9 +33,17 @@ namespace FileProcessing.Loader
 
         public bool Start()
         {
-            _cancellationTokenSource = new CancellationTokenSource();
+            try
+            {
+                _cancellationTokenSource = new CancellationTokenSource();
 
-            _loadProcessLoopTask = StartFileProcessLoop();
+                _loadProcessLoopTask = StartFileProcessLoop();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("File Load Service Error", ex);
+                throw;
+            }
 
             return true;
         }
@@ -53,7 +62,7 @@ namespace FileProcessing.Loader
                     {
                         var loadProcess = new LoadProcess(fileToProcess.Config, _cancellationTokenSource);
 
-                        loadProcess.Start(fileToProcess.FilePath, _logger);
+                        loadProcess.Start(fileToProcess.FilePath, new TransformationLogger(_logger));
 
                         if (_cancellationTokenSource.Token.IsCancellationRequested)
                         {
