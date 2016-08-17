@@ -69,9 +69,9 @@ namespace TransformationLoadTest
 
             statusListBox.Items.Clear();
 
-            _runner = new LoadProcess(config, new System.Threading.CancellationTokenSource());
+            _runner = new LoadProcess(config, new System.Threading.CancellationTokenSource(), _logger);
 
-            _runner.Start(_filename, _logger);
+            _runner.Start(_filename);
         }
 
     }

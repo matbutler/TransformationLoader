@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Diagnostics;
@@ -15,67 +16,17 @@ namespace Transformation.Loader
 {
     public class LoadProcess
     {
-        #region "Private Variables"
         private Stopwatch _sw = new Stopwatch();
 
         private System.Threading.Timer _LogTimer;
         private ILogger _logger;
+        private XElement _config;
         private CancellationTokenSource _cancellationTokenSource;
         private BlockingCollection<Dictionary<string, object>> _inputQueue;
-        #endregion
-
-        #region "Public Properties"
         private bool _running = false;
-        public bool Running
-        {
-            get { return _running; }
-        }
-
         private int _pipeCount;
-        public int PipeCount
-        {
-            get { return _pipeCount; }
-        }
 
-        private int _activePipeCount;
-        public int ActivePipeCount
-        {
-            get { return _activePipeCount; }
-        }
-
-        private int _rowprocessedCount;
-        public int RowprocessedCount
-        {
-            get { return _rowprocessedCount; }
-        }
-
-        private int _rowSkippedCount;
-        public int RowSkippedCount
-        {
-            get { return _rowSkippedCount; }
-        }
-
-        private int _rowErrorCount;
-        public int RowErrorCount
-        {
-            get { return _rowErrorCount; }
-        }
-
-        private Dictionary<string, object> _globalData;
-        public Dictionary<string, object> GlobalData
-        {
-            get { return _globalData; }
-        }
-
-        private XElement _config;
-        public XElement Config
-        {
-            get { return _config; }
-        }
-
-        #endregion
-
-        public LoadProcess(XElement config, CancellationTokenSource cancellationTokenSource)
+        public LoadProcess(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger)
         {
             if (config == null)
             {
@@ -83,10 +34,20 @@ namespace Transformation.Loader
             }
 
             _config = config;
+            _logger = logger;
             _cancellationTokenSource = cancellationTokenSource;
+
+            var pipeCount = Convert.ToInt32(_config.Element("pipe")?.Attribute("pipes")?.Value);
+
+            int maxQueue = 50000;
+            if (_config.Element("pipe")?.Attribute("queuesize") != null)
+            {
+                maxQueue = Convert.ToInt32(_config.Element("pipe")?.Attribute("queuesize").Value);
+            }
+
+            _inputQueue = new BlockingCollection<Dictionary<string, object>>(maxQueue);
         }
 
-        #region "Private Functions"
 
         private void FinishProcess(bool success, string errorMsg)
         {
@@ -106,39 +67,11 @@ namespace Transformation.Loader
             _logger.Log(string.Format("Process : {0} Active Pipes ({2:#,##0} rows ({3:#,##0} skipped) in {1:#,##0.00} Secs / {4:#,##0} RPS)", _activePipeCount, _sw.Elapsed.TotalSeconds, _rowprocessedCount, _rowSkippedCount, (_rowprocessedCount + _rowSkippedCount) / _sw.Elapsed.TotalSeconds), MessageLevel.Info);
         }
 
-        private void SetupGlobalVar()
-        {
-            foreach (var globalEl in _config.Elements("globalvar"))
-            {
-                if (globalEl.Attribute("name") != null && globalEl.Attribute("value") != null && globalEl.Attribute("valuetype") != null)
-                {
-                    try
-                    {
-                        var converter = TypeConverter.GetConverter(globalEl.Attribute("valuetype")?.Value, globalEl.Attribute("dateformat")?.Value);
-                        var val = converter(globalEl.Attribute("value")?.Value);
-                        _globalData.Add(globalEl.Attribute("name").Value, val);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception(string.Format("Error setting up global var {0} - {1}", globalEl.Attribute("name").ToString(), ex.Message));
-                    }
-                }
-                else
-                {
-                    throw new Exception(string.Format("Error setting up global var {0} missing (name, value, valuetype)", globalEl.ToString()));
-                }
-            }
-        }
-        #endregion
-
-        #region "Public Functions"
-
-        public async void Start(string fileName,ILogger logger)
+        public async void Start(string fileName)
         {
             //Create Logging Timer
             _LogTimer = new Timer(LogTimerTick, null, 10000, 10000);
 
-            _logger = logger;
 
             if (_running)
             {
@@ -146,32 +79,32 @@ namespace Transformation.Loader
                 return;
             }
 
-            Initialise();
-
-            CancellationToken token = _cancellationTokenSource.Token;
-            Task[] ETLtasks = new Task[PipeCount + 1];
+            Task[] ETLtasks = new Task[_pipeCount + 1];
 
             _logger.Log(string.Format("Process : Started (Pipes = {0})", _pipeCount), MessageLevel.Action);
 
             try
             {
-                SetupGlobalVar();
+                var readerConfig = _config.Element("reader");
 
-                var catalog = new DirectoryCatalog("Engine");
-                
-                var reader = GetReader(catalog);
+                var readerFactory = new ReaderFactory();
+                var reader = readerFactory.GetReader(readerConfig);
+                reader.Initialise(fileName, readerConfig, _logger);
 
                 var processId = Guid.NewGuid();
 
-                reader.Initialise(fileName, Config.Element("reader"), _logger);
+                var globalDictionaryBuilder = new GlobalDictionaryBuilder();
+                var globalData = globalDictionaryBuilder.Build(_config);
 
                 _sw.Start();
 
-                var rowlogger = new RowLogger(GlobalData["connection"].ToString(),processId);
+                var rowlogger = new RowLogger(globalData["connection"].ToString(),processId);
+
+                var token = _cancellationTokenSource.Token;
 
                 StartReader(token, ETLtasks, reader, rowlogger);
 
-                StartPipes(token, ETLtasks, rowlogger, catalog);
+                StartPipes(globalData ,token, ETLtasks, rowlogger);
 
                 bool success = false;
                 string errorMsg = string.Empty;
@@ -220,13 +153,13 @@ namespace Transformation.Loader
             return errorMsg;
         }
 
-        private void StartPipes(CancellationToken token, Task[] ETLtasks, RowLogger rowlogger, DirectoryCatalog catalog)
+        private void StartPipes(ReadOnlyDictionary<string, object> globalData,CancellationToken token, Task[] ETLtasks, RowLogger rowlogger)
         {
-            for (var i = 1; i <= PipeCount; i++)
+            for (var i = 1; i <= _pipeCount; i++)
             {
                 var pipeno = i;
 
-                var pipeBuilder = new PipeBuilder(_config, GlobalData, _logger, catalog);
+                var pipeBuilder = new PipeBuilder(_config, globalData, _logger);
 
                 ETLtasks[i] = Task.Factory.StartNew(() =>
                 {
@@ -274,58 +207,5 @@ namespace Transformation.Loader
             }, TaskCreationOptions.LongRunning);
         }
 
-        private IReader GetReader(DirectoryCatalog catalog)
-        {
-            string readerName = string.Empty;
-            string readerVersion = string.Empty;
-
-            try
-            {
-                var readerConfig = Config.Element("reader");
-
-                readerName = readerConfig?.Attribute("name")?.Value;
-
-                readerVersion = readerConfig?.Attribute("version")?.Value ?? "";
-
-                if (string.IsNullOrWhiteSpace(readerName))
-                {
-                    throw new Exception("Reader name missing from Config.");
-                }
-
-                var container = new CompositionContainer(catalog);
-
-                ReaderFactory LdrFactory = new ReaderFactory();
-                container.ComposeParts(LdrFactory);
-
-                return LdrFactory.CreateReader(readerName, readerVersion);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(string.Format("Unable to create Loader {0} : {1}", readerName, ex.Message));
-            }
-        }
-
-        private void Initialise()
-        {
-            _running = true;
-            _rowErrorCount = 0;
-            _rowprocessedCount = 0;
-            _rowSkippedCount = 0;
-            _sw.Reset();
-            _globalData = new Dictionary<string, object>();
-            _inputQueue = null;
-
-            var pipeElement = _config.Element("pipe");
-            _pipeCount = Convert.ToInt32(pipeElement.Attribute("pipes").Value);
-
-            int maxQueue = 50000;
-            if (pipeElement.Attribute("queuesize") != null)
-            {
-                maxQueue = Convert.ToInt32(pipeElement.Attribute("queuesize").Value);
-            }
-
-            _inputQueue = new BlockingCollection<Dictionary<string, object>>(maxQueue);
-        }
-        #endregion
     }
 }

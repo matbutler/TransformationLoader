@@ -42,6 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalDictionaryBuilder.cs" />
+    <Compile Include="IGlobalDictionaryBuilder.cs" />
     <Compile Include="IPipeBuilder.cs" />
     <Compile Include="PipeBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -18,10 +18,12 @@ namespace Transformation.Loader
         private readonly IEnumerable<XElement> _transactionElements;
         private readonly Dictionary<string, object> _globalData;
 
-        public PipeBuilder(XElement config, Dictionary<string, object> globalData, ILogger logger, DirectoryCatalog catalog)
+        public PipeBuilder(XElement config, Dictionary<string, object> globalData, ILogger logger)
         {
             _logger = logger;
             _globalData = globalData;
+
+            var catalog = new DirectoryCatalog("Engine");
             _container = new CompositionContainer(catalog);
 
             var pipeElement = config.Element("pipe");

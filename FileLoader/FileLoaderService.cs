@@ -60,7 +60,7 @@ namespace FileProcessing.Loader
 
                     while ((fileToProcess = fileSelector.GetFileToProcess()) != null)
                     {
-                        var loadProcess = new LoadProcess(fileToProcess.Config, _cancellationTokenSource);
+                        var loadProcess = new LoadProcess(fileToProcess.Config, _cancellationTokenSource, _logger);
 
                         loadProcess.Start(fileToProcess.FilePath, new TransformationLogger(_logger));
 
