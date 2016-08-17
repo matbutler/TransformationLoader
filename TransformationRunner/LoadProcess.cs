@@ -2,14 +2,11 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using TransformationCore.Enums;
-using TransformationCore.Helpers;
 using TransformationCore.Interfaces;
 
 namespace Transformation.Loader
@@ -18,13 +15,17 @@ namespace Transformation.Loader
     {
         private Stopwatch _sw = new Stopwatch();
 
-        private System.Threading.Timer _LogTimer;
+        private Timer _LogTimer;
         private ILogger _logger;
         private XElement _config;
         private CancellationTokenSource _cancellationTokenSource;
         private BlockingCollection<Dictionary<string, object>> _inputQueue;
         private bool _running = false;
         private int _pipeCount;
+        private int _rowSkippedCount;
+        private int _rowprocessedCount;
+        private int _activePipeCount;
+        private int _rowErrorCount;
 
         public LoadProcess(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger)
         {
@@ -37,7 +38,8 @@ namespace Transformation.Loader
             _logger = logger;
             _cancellationTokenSource = cancellationTokenSource;
 
-            var pipeCount = Convert.ToInt32(_config.Element("pipe")?.Attribute("pipes")?.Value);
+
+            _pipeCount = Convert.ToInt32(_config.Element("pipe")?.Attribute("pipes")?.Value);
 
             int maxQueue = 50000;
             if (_config.Element("pipe")?.Attribute("queuesize") != null)

@@ -9,6 +9,7 @@ using TransformationCore.Exceptions;
 using System.ComponentModel;
 using TransformationCore.Helpers;
 using TransformationCore.Interfaces;
+using System.Collections.ObjectModel;
 
 namespace TransformationCore
 {
@@ -17,10 +18,10 @@ namespace TransformationCore
         protected List<TransformationFilter> _filters;
         protected List<TransformationField> _inputfields = new List<TransformationField>();
         protected List<TransformationField> _outputfields = new List<TransformationField>();
-        protected Dictionary<string, object> GlobalData { get; set; }
+        protected ReadOnlyDictionary<string, object> GlobalData { get; set; }
         protected long RowNo { get; set; }
 
-        public void Initialise(XElement configXML, Dictionary<string, object> globalData, ILogger logger)
+        public void Initialise(XElement configXML, ReadOnlyDictionary<string, object> globalData, ILogger logger)
         {
             GlobalData = globalData;
 

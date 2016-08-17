@@ -50,7 +50,7 @@ namespace FileProcessing.Loader
 
         private Task StartFileProcessLoop()
         {
-            var fileSelector = new FileSelector();
+            var fileSelector = new FileSelector("");
 
             return Task.Run(async () =>
             {
@@ -60,9 +60,9 @@ namespace FileProcessing.Loader
 
                     while ((fileToProcess = fileSelector.GetFileToProcess()) != null)
                     {
-                        var loadProcess = new LoadProcess(fileToProcess.Config, _cancellationTokenSource, _logger);
+                        var loadProcess = new LoadProcess(fileToProcess.Config, _cancellationTokenSource, new TransformationLogger(_logger));
 
-                        loadProcess.Start(fileToProcess.FilePath, new TransformationLogger(_logger));
+                        loadProcess.Start(fileToProcess.FilePath);
 
                         if (_cancellationTokenSource.Token.IsCancellationRequested)
                         {

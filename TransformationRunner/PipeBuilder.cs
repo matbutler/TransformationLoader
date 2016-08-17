@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Linq;
@@ -16,9 +17,9 @@ namespace Transformation.Loader
         private readonly ILogger _logger;
         private readonly CompositionContainer _container;
         private readonly IEnumerable<XElement> _transactionElements;
-        private readonly Dictionary<string, object> _globalData;
+        private readonly ReadOnlyDictionary<string, object> _globalData;
 
-        public PipeBuilder(XElement config, Dictionary<string, object> globalData, ILogger logger)
+        public PipeBuilder(XElement config, ReadOnlyDictionary<string, object> globalData, ILogger logger)
         {
             _logger = logger;
             _globalData = globalData;
