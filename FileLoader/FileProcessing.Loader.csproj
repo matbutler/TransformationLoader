@@ -52,7 +52,6 @@
     <Compile Include="FileLoaderService.cs" />
     <Compile Include="FileSelector.cs" />
     <Compile Include="IFileSelector.cs" />
-    <Compile Include="Logging\TransformationLogger.cs" />
     <Compile Include="Models\ProcessFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

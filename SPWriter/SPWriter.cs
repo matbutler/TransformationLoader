@@ -1,17 +1,14 @@
-﻿using SPWriter.Models;
-using System;
+﻿using Logging;
+using SPWriter.Models;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 using TransformationCore;
 using TransformationCore.Exceptions;
 using TransformationCore.Helpers;
-using TransformationCore.Interfaces;
 
 namespace SPWriter
 {

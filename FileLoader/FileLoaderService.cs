@@ -2,7 +2,6 @@
 using FileProcessing.Core;
 using Transformation.Loader;
 using System.Threading.Tasks;
-using FileProcessing.Loader.Helper;
 using System.Configuration;
 using System.Threading;
 using FileProcessing.Loader.Models;
@@ -60,7 +59,7 @@ namespace FileProcessing.Loader
 
                     while ((fileToProcess = fileSelector.GetFileToProcess()) != null)
                     {
-                        var loadProcess = new LoadProcess(fileToProcess.Config, _cancellationTokenSource, new TransformationLogger(_logger));
+                        var loadProcess = new LoadProcess(fileToProcess.Config, _cancellationTokenSource, _logger);
 
                         loadProcess.Start(fileToProcess.FilePath);
 

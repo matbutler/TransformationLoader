@@ -10,6 +10,7 @@ using System.ComponentModel;
 using TransformationCore.Helpers;
 using TransformationCore.Interfaces;
 using System.Collections.ObjectModel;
+using Logging;
 
 namespace TransformationCore
 {

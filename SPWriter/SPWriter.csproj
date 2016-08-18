@@ -47,6 +47,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Logging\Logging.csproj">
+      <Project>{22595753-FBEF-467E-8019-6E1FE5504B05}</Project>
+      <Name>Logging</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Transformation\TransformationCore.csproj">
       <Project>{ee3c4f3c-c316-4a17-9730-6280d948c2da}</Project>
       <Name>TransformationCore</Name>

@@ -6,6 +6,7 @@ using TransformationCore.Exceptions;
 using TransformationCore.Enums;
 using TransformationCore.Interfaces;
 using TransformationCore;
+using Logging;
 
 namespace Transformation.Loader
 {
@@ -27,7 +28,7 @@ namespace Transformation.Loader
 
         public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, ref int pipeCount, ref int rowprocessedCount, CancellationToken ct, Action<bool, bool, int, string> rowLogAction)
         {
-            _logger.Log(string.Format("Pipe {0}: Started", _pipeNumber), MessageLevel.Debug);
+            _logger.Debug(string.Format("Pipe {0}: Started", _pipeNumber));
             Interlocked.Increment(ref pipeCount);
 
             try
@@ -45,7 +46,7 @@ namespace Transformation.Loader
 
                 ClosePipe();
 
-                _logger.Log(string.Format("Pipe {0}: Finished", _pipeNumber), MessageLevel.Debug);
+                _logger.Debug(string.Format("Pipe {0}: Finished", _pipeNumber));
             }
             catch (OperationCanceledException)
             {
@@ -94,7 +95,7 @@ namespace Transformation.Loader
 
                 string errMsg = string.Format("Error Transforming Row {0} in {2} : {1}", rowNo, ex.Message, curTransformation);
 
-                _logger.Log(string.Format("Pipe {0}: {1}", _pipeNumber, errMsg), MessageLevel.Critical);
+                _logger.Fatal(string.Format("Pipe {0}: {1}", _pipeNumber, errMsg));
 
                 Interlocked.Increment(ref errorCount);
                 if (_errorsAllowed != -1 && errorCount >= _errorsAllowed)

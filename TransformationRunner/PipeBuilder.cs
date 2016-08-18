@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Logging;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
@@ -44,8 +45,6 @@ namespace Transformation.Loader
         {
             var pipe = new Dictionary<string, ITransformation>();
 
-            var mgslvl = pipeNumber > 1 ? MessageLevel.Debug : MessageLevel.Info;
-
             int count = 0;
             foreach (var tranConfig in _transactionElements)
             {
@@ -70,11 +69,19 @@ namespace Transformation.Loader
                     tran.Initialise(tranConfig, _globalData, _logger);
 
                     pipe.Add(string.Format("{0} - {1}", tranName, count), tran);
-                    _logger.Log(string.Format("Pipe {0}: Transformation {1} = {2}", pipeNumber, count, tranName), mgslvl);
+
+                    if(pipeNumber > 1)
+                    {
+                        _logger.Debug(string.Format("Pipe {0}: Transformation {1} = {2}", pipeNumber, count, tranName));
+                    }
+                    else
+                    {
+                        _logger.Info(string.Format("Pipe {0}: Transformation {1} = {2}", pipeNumber, count, tranName));
+                    }
                 }
                 catch (Exception ex)
                 {
-                    _logger.Log(string.Format("Pipe {0}: Unable to Create Transformation {1} : {2} ({3})", pipeNumber, count, tranName, ex.Message), MessageLevel.Critical);
+                    _logger.Fatal(string.Format("Pipe {0}: Unable to Create Transformation {1} : {2} ({3})", pipeNumber, count, tranName, ex.Message));
                     throw new TransformationPipeException(string.Format("Unable to Create Transformation {0} : {1}", tranName, ex.Message));
                 }
             }

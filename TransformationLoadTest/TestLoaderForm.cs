@@ -1,11 +1,11 @@
-﻿using PipeTest;
+﻿using Logging;
+using PipeTest;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using Transformation.Loader;
-using TransformationCore.Interfaces;
 
 namespace TransformationLoadTest
 {
@@ -20,7 +20,7 @@ namespace TransformationLoadTest
         {
             InitializeComponent();
 
-            _logger = new ListboxLogger(statusListBox, TransformationCore.Enums.MessageLevel.Info);
+            _logger = new ListboxLogger(statusListBox);
         }
 
         private void statusListBox_DrawItem(object sender, DrawItemEventArgs e)
@@ -53,7 +53,7 @@ namespace TransformationLoadTest
             XElement config;
             if (string.IsNullOrWhiteSpace(_filename))
             {
-                _logger.Log("Please Select a file.", TransformationCore.Enums.MessageLevel.Critical);
+                _logger.Fatal("Please Select a file.");
                 return;
             }
 
@@ -63,7 +63,7 @@ namespace TransformationLoadTest
             }
             catch(Exception ex)
             {
-                _logger.Log(string.Format("Error parsing config : {0}", ex.Message), TransformationCore.Enums.MessageLevel.Critical);
+                _logger.Fatal(string.Format("Error parsing config : {0}", ex.Message));
                 return;
             }
 

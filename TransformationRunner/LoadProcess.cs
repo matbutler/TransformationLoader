@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Logging;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,7 +23,6 @@ namespace Transformation.Loader
         private BlockingCollection<Dictionary<string, object>> _inputQueue;
         private bool _running = false;
         private int _pipeCount;
-        private int _rowSkippedCount;
         private int _rowprocessedCount;
         private int _activePipeCount;
         private int _rowErrorCount;
@@ -56,7 +56,7 @@ namespace Transformation.Loader
             _sw.Stop();
             _LogTimer.Dispose();
 
-            _logger.Log(string.Format("Process : Finished ({1:#,##0} rows ({2:#,##0} skipped) in {0:#,##0.00} Secs / {3:#,##0} RPS)", _sw.Elapsed.TotalSeconds, _rowprocessedCount, _rowSkippedCount, (_rowprocessedCount + _rowSkippedCount) / _sw.Elapsed.TotalSeconds), MessageLevel.Action);
+            _logger.Info(string.Format("Process : Finished ({1:#,##0} rows in {0:#,##0.00} Secs / {2:#,##0} RPS)", _sw.Elapsed.TotalSeconds, _rowprocessedCount, _rowprocessedCount / _sw.Elapsed.TotalSeconds));
 
             //Sleep to give log a chance to update before completion
             Thread.Sleep(1000);
@@ -66,7 +66,7 @@ namespace Transformation.Loader
 
         private void LogTimerTick(object state)
         {
-            _logger.Log(string.Format("Process : {0} Active Pipes ({2:#,##0} rows ({3:#,##0} skipped) in {1:#,##0.00} Secs / {4:#,##0} RPS)", _activePipeCount, _sw.Elapsed.TotalSeconds, _rowprocessedCount, _rowSkippedCount, (_rowprocessedCount + _rowSkippedCount) / _sw.Elapsed.TotalSeconds), MessageLevel.Info);
+            _logger.Info(string.Format("Process : {0} Active Pipes ({2:#,##0} rows  in {1:#,##0.00} Secs / {3:#,##0} RPS)", _activePipeCount, _sw.Elapsed.TotalSeconds, _rowprocessedCount, _rowprocessedCount / _sw.Elapsed.TotalSeconds));
         }
 
         public async void Start(string fileName)
@@ -77,13 +77,13 @@ namespace Transformation.Loader
 
             if (_running)
             {
-                _logger.Log("Process : The process is already running", MessageLevel.Critical);
+                _logger.Fatal("Process : The process is already running");
                 return;
             }
 
             Task[] ETLtasks = new Task[_pipeCount + 1];
 
-            _logger.Log(string.Format("Process : Started (Pipes = {0})", _pipeCount), MessageLevel.Action);
+            _logger.Info(string.Format("Process : Started (Pipes = {0})", _pipeCount));
 
             try
             {
@@ -125,12 +125,12 @@ namespace Transformation.Loader
                     errorMsg = LogException(errorMsg, ex);
                 }
 
-                _logger.Log(string.Format("Process : Loaded {0:0.0} Seconds", _sw.Elapsed.TotalSeconds), MessageLevel.Info);
+                _logger.Debug(string.Format("Process : Loaded {0:0.0} Seconds", _sw.Elapsed.TotalSeconds));
                 FinishProcess(success, errorMsg);
             }
             catch (Exception ex)
             {
-                _logger.Log(ex.Message, MessageLevel.Critical);
+                _logger.Fatal(ex.Message);
 
                 FinishProcess(false, ex.Message);
             }
@@ -148,7 +148,7 @@ namespace Transformation.Loader
                         errorMsg = errorMsg + ":" + v.InnerException.Message;
                     }
 
-                    _logger.Log(errorMsg, MessageLevel.Critical);
+                    _logger.Fatal(errorMsg);
                 }
             }
 

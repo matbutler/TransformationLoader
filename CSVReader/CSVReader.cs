@@ -1,4 +1,5 @@
-﻿using LumenWorks.Framework.IO.Csv;
+﻿using Logging;
+using LumenWorks.Framework.IO.Csv;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
-using TransformationCore;
 using TransformationCore.Exceptions;
 using TransformationCore.Helpers;
 using TransformationCore.Interfaces;

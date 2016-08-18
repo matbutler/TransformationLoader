@@ -55,6 +55,10 @@
       <Project>{6269eba8-c98c-42ec-bff4-b0e1f8d9e53c}</Project>
       <Name>CSVReader</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Logging\Logging.csproj">
+      <Project>{22595753-FBEF-467E-8019-6E1FE5504B05}</Project>
+      <Name>Logging</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Transformation\TransformationCore.csproj">
       <Project>{EE3C4F3C-C316-4A17-9730-6280D948C2DA}</Project>
       <Name>TransformationCore</Name>

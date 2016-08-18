@@ -57,7 +57,6 @@
     <Compile Include="Exceptions\TransformationFilterException.cs" />
     <Compile Include="Helpers\LinqAccessors.cs" />
     <Compile Include="Helpers\TypeConverter.cs" />
-    <Compile Include="Interfaces\ILogger.cs" />
     <Compile Include="Interfaces\IReader.cs" />
     <Compile Include="Models\ReaderField.cs" />
     <Compile Include="Transformation.cs" />
@@ -69,7 +68,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\Logging\Logging.csproj">
+      <Project>{22595753-fbef-467e-8019-6e1fe5504b05}</Project>
+      <Name>Logging</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

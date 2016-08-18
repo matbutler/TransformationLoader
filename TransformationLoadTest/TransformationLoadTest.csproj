@@ -83,6 +83,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Logging\Logging.csproj">
+      <Project>{22595753-FBEF-467E-8019-6E1FE5504B05}</Project>
+      <Name>Logging</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TransformationRunner\Transformation.Loader.csproj">
       <Project>{B64D5360-CF21-41FC-AF36-83E9D1FB6A21}</Project>
       <Name>Transformation.Loader</Name>
