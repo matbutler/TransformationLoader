@@ -26,7 +26,7 @@ namespace Transformation.Loader
             _logger = logger;
         }
 
-        public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, ref int pipeCount, ref int rowprocessedCount, CancellationToken ct, Action<bool, bool, int, string> rowLogAction)
+        public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, ref int pipeCount, ref int rowprocessedCount, CancellationToken ct, Action<bool, bool, long, string> rowLogAction)
         {
             _logger.Debug(string.Format("Pipe {0}: Started", _pipeNumber));
             Interlocked.Increment(ref pipeCount);
@@ -66,9 +66,16 @@ namespace Transformation.Loader
             }
         }
 
-        private void LoadRow(Dictionary<string, object> row, ref int errorCount, Action<bool, bool, int, string> rowLogAction)
+        private void LoadRow(Dictionary<string, object> row, ref int errorCount, Action<bool, bool, long, string> rowLogAction)
         {
             string curTransformation = "";
+
+            long rowNo = -1;
+
+            if (row != null && row["#row"] != null)
+            {
+                rowNo = (long)row["#row"];
+            }
 
             try
             {
@@ -80,20 +87,17 @@ namespace Transformation.Loader
 
                     if (row.ContainsKey("#DROP") && (bool)row["#DROP"] == true)
                     {
+                        rowLogAction?.Invoke(false, true, rowNo, null);
                         return;
                     }
                 }
+                rowLogAction?.Invoke(true, false, rowNo, null);
             }
             catch (Exception ex)
             {
-                long rowNo = -1;
-
-                if (row != null && row["#row"] != null)
-                {
-                    rowNo = (long)row["#row"];
-                }
-
                 string errMsg = string.Format("Error Transforming Row {0} in {2} : {1}", rowNo, ex.Message, curTransformation);
+
+                rowLogAction?.Invoke(false, false, rowNo, errMsg);
 
                 _logger.Fatal(string.Format("Pipe {0}: {1}", _pipeNumber, errMsg));
 

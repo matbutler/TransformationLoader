@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Transformation.Loader
@@ -14,6 +15,7 @@ namespace Transformation.Loader
         private string _filepath;
         private DataTable _loggingTable;
         private int _rows;
+        private static SemaphoreSlim _fileLock = new SemaphoreSlim(1, 1);
 
         public RowLogger(string connStr, Guid processId)
         {
@@ -46,10 +48,22 @@ namespace Transformation.Loader
         {
             byte[] encodedText = Encoding.Unicode.GetBytes(text);
 
-            using (FileStream sourceStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+            await _fileLock.WaitAsync();
+
+            FileStream sourceStream = null;
+            try 
             {
+                sourceStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, bufferSize: 4096, useAsync: true);
                 await sourceStream.WriteAsync(encodedText, 0, encodedText.Length);
-            };
+            }
+            finally
+            {
+                _fileLock.Release();
+                if (sourceStream != null)
+                {
+                    sourceStream.Dispose();
+                }
+            }
         }
 
         private void BulkCopy()
@@ -84,9 +98,9 @@ namespace Transformation.Loader
             }
         }
 
-        public async void LogRow(bool rowSucess, bool rowDropped, int rowNumber, string rowError)
+        public void LogRow(bool rowSucess, bool rowDropped, long rowNumber, string rowError)
         {
-            await WriteTextAsync(_filepath, string.Format("{0},{1},{2},{3}/r/n", rowNumber, rowSucess, rowDropped, rowError));
+            WriteTextAsync(_filepath, string.Format("{0},{1},{2},{3}" + Environment.NewLine, rowNumber, rowSucess, rowDropped, rowError)).Wait();
 
             lock (_loggingTable)
             {

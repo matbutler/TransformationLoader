@@ -99,7 +99,7 @@ namespace CSVReader
         }
 
 
-        public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, CancellationToken ct, ILogger logger, Action<bool, bool, int, string> rowLogAction)
+        public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, CancellationToken ct, ILogger logger, Action<bool, bool, long, string> rowLogAction)
         {
             using (CsvReader csv = new CsvReader(new StreamReader(_fileName), _hasHeader, _delimeter))
             {

@@ -11,7 +11,6 @@ namespace PipeTest
     public class ListboxLogger : ILogger
     {
         private readonly ListBox _listBox;
-        private readonly MessageLevel _logLevel;
 
         public ListboxLogger(ListBox listBox)
         {
