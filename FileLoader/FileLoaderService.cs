@@ -6,6 +6,7 @@ using System.Configuration;
 using System.Threading;
 using FileProcessing.Loader.Models;
 using Logging;
+using System.Xml.Linq;
 
 namespace FileProcessing.Loader
 {
@@ -59,9 +60,13 @@ namespace FileProcessing.Loader
 
                     while ((fileToProcess = fileSelector.GetFileToProcess()) != null)
                     {
-                        var loadProcess = new LoadProcess(fileToProcess.Config, _cancellationTokenSource, _logger);
+                        var dbRowLogger = new DBRowLogger("");
+                        var loadProcess = new LoadProcess();
+                        loadProcess.Initialise(fileToProcess.Config, _cancellationTokenSource, _logger, dbRowLogger);
 
-                        loadProcess.Start(fileToProcess.FilePath);
+                        var processInfo = new XElement("processinfo");
+                        //fileToProcess.FilePath
+                        loadProcess.Process(processInfo);
 
                         if (_cancellationTokenSource.Token.IsCancellationRequested)
                         {

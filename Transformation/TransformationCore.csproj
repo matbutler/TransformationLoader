@@ -57,7 +57,9 @@
     <Compile Include="Exceptions\TransformationFilterException.cs" />
     <Compile Include="Helpers\LinqAccessors.cs" />
     <Compile Include="Helpers\TypeConverter.cs" />
+    <Compile Include="Interfaces\IProcessStep.cs" />
     <Compile Include="Interfaces\IReader.cs" />
+    <Compile Include="Interfaces\IRowLogger.cs" />
     <Compile Include="Models\ReaderField.cs" />
     <Compile Include="Transformation.cs" />
     <Compile Include="Interfaces\ITransformation.cs" />

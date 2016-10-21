@@ -28,9 +28,15 @@ namespace PipeTest
                                         ");
 
 
-            var runner = new LoadProcess(config, new System.Threading.CancellationTokenSource(), new ConsoleLogger());
+            var runner = new LoadProcess();
 
-            runner.Start(@"c:\temp\stafftest.csv");
+            runner.Initialise(config, new System.Threading.CancellationTokenSource(), new ConsoleLogger(), null);
+
+            var processInfo = new XElement("processinfo");
+
+            //@"c:\temp\stafftest.csv"
+
+            runner.Process(processInfo);
 
             Console.ReadKey();
         }

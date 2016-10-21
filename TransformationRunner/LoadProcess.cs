@@ -7,11 +7,12 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using TransformationCore;
 using TransformationCore.Interfaces;
 
 namespace Transformation.Loader
 {
-    public class LoadProcess
+    public class LoadProcess : IProcessStep
     {
         private Stopwatch _sw = new Stopwatch();
 
@@ -25,8 +26,9 @@ namespace Transformation.Loader
         private int _rowprocessedCount;
         private int _activePipeCount;
         private int _rowErrorCount;
+        private List<IRowLogger> _rowloggers;
 
-        public LoadProcess(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger)
+        public void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger)
         {
             if (config == null)
             {
@@ -35,8 +37,17 @@ namespace Transformation.Loader
 
             _config = config;
             _logger = logger;
-            _cancellationTokenSource = cancellationTokenSource;
+            _rowloggers = new List<IRowLogger>()
+            {
+                new RowLogger()
+            };
 
+            if (rowlogger != null)
+            {
+                _rowloggers.Add(rowlogger);
+            }
+
+            _cancellationTokenSource = cancellationTokenSource;
 
             _pipeCount = Convert.ToInt32(_config.Element("pipe")?.Attribute("pipes")?.Value);
 
@@ -49,40 +60,38 @@ namespace Transformation.Loader
             _inputQueue = new BlockingCollection<Dictionary<string, object>>(maxQueue);
         }
 
-
-        private void FinishProcess(bool success, string errorMsg)
+        public async Task<bool> Process(XElement processInfo, bool previousStepSucceeded = true)
         {
+            var filename = processInfo.Element("filename")?.Value;
+
+            if (string.IsNullOrWhiteSpace(filename))
+            {
+                _logger.Error("Missing Filename");
+                return false;
+            }
+
+            _LogTimer = new Timer(LogTimerTick, null, 10000, 10000);
+
+            var result = await Start(filename);
+
             _sw.Stop();
             _LogTimer.Dispose();
 
-            _logger.Info(string.Format("Process : Finished ({1:#,##0} rows in {0:#,##0.00} Secs / {2:#,##0} RPS)", _sw.Elapsed.TotalSeconds, _rowprocessedCount, _rowprocessedCount / _sw.Elapsed.TotalSeconds));
+            _logger.Info(string.Format("Finished ({1:#,##0} rows in {0:#,##0.00} Secs / {2:#,##0} RPS)", _sw.Elapsed.TotalSeconds, _rowprocessedCount, _rowprocessedCount / _sw.Elapsed.TotalSeconds));
 
-            //Sleep to give log a chance to update before completion
-            Thread.Sleep(1000);
-
-            _running = false;
+            return result;
         }
 
         private void LogTimerTick(object state)
         {
-            _logger.Info(string.Format("Process : {0} Active Pipes ({2:#,##0} rows  in {1:#,##0.00} Secs / {3:#,##0} RPS)", _activePipeCount, _sw.Elapsed.TotalSeconds, _rowprocessedCount, _rowprocessedCount / _sw.Elapsed.TotalSeconds));
+            _logger.Info(string.Format("{0} Active Pipes ({2:#,##0} rows  in {1:#,##0.00} Secs / {3:#,##0} RPS)", _activePipeCount, _sw.Elapsed.TotalSeconds, _rowprocessedCount, _rowprocessedCount / _sw.Elapsed.TotalSeconds));
         }
 
-        public async void Start(string fileName)
+        private async Task<bool> Start(string fileName)
         {
-            //Create Logging Timer
-            _LogTimer = new Timer(LogTimerTick, null, 10000, 10000);
-
-
-            if (_running)
-            {
-                _logger.Fatal("Process : The process is already running");
-                return;
-            }
-
             Task[] ETLtasks = new Task[_pipeCount + 1];
 
-            _logger.Info(string.Format("Process : Started (Pipes = {0})", _pipeCount));
+            _logger.Info(string.Format("Started (Pipes = {0})", _pipeCount));
 
             try
             {
@@ -99,44 +108,38 @@ namespace Transformation.Loader
 
                 _sw.Start();
 
-                var rowlogger = new RowLogger(globalData["connection"].ToString(),processId);
-
                 var token = _cancellationTokenSource.Token;
 
-                StartReader(token, ETLtasks, reader, rowlogger);
+                _rowloggers.ForEach(x => x.Initialise(processId));
 
-                StartPipes(globalData ,token, ETLtasks, rowlogger);
+                StartReader(token, ETLtasks, reader);
 
-                bool success = false;
-                string errorMsg = string.Empty;
+                StartPipes(globalData ,token, ETLtasks);
 
                 try
                 {
                     await Task.WhenAll(ETLtasks);
 
-                    success = true;
-                    rowlogger.Complete();
+                    _rowloggers.ForEach(x => x.Complete());
 
-                    rowlogger = null;
+                    return true;
                 }
                 catch (AggregateException ex)
                 {
-                    errorMsg = LogException(errorMsg, ex);
+                    LogException(ex);
                 }
-
-                _logger.Debug(string.Format("Process : Loaded {0:0.0} Seconds", _sw.Elapsed.TotalSeconds));
-                FinishProcess(success, errorMsg);
             }
             catch (Exception ex)
             {
                 _logger.Fatal(ex.Message);
-
-                FinishProcess(false, ex.Message);
             }
+
+            return false;
         }
 
-        private string LogException(string errorMsg, AggregateException ex)
+        private void LogException(AggregateException ex)
         {
+            string errorMsg = string.Empty;
             foreach (var v in ex.Flatten().InnerExceptions)
             {
                 if (!(v is TaskCanceledException))
@@ -150,11 +153,9 @@ namespace Transformation.Loader
                     _logger.Fatal(errorMsg);
                 }
             }
-
-            return errorMsg;
         }
 
-        private void StartPipes(ReadOnlyDictionary<string, object> globalData,CancellationToken token, Task[] ETLtasks, RowLogger rowlogger)
+        private void StartPipes(ReadOnlyDictionary<string, object> globalData,CancellationToken token, Task[] ETLtasks)
         {
             for (var i = 1; i <= _pipeCount; i++)
             {
@@ -170,7 +171,7 @@ namespace Transformation.Loader
                         var tpipe = new PipeRunner(pipeno, pipe, 1, _logger);
                         try
                         {
-                           tpipe.Load(_inputQueue, ref _rowErrorCount, ref _activePipeCount, ref _rowprocessedCount, token, rowlogger.LogRow);
+                           tpipe.Load(_inputQueue, ref _rowErrorCount, ref _activePipeCount, ref _rowprocessedCount, token, LogRow);
                         }
                         finally
                         {
@@ -189,13 +190,13 @@ namespace Transformation.Loader
             }
         }
 
-        private void StartReader(CancellationToken token, Task[] ETLtasks, IReader reader, RowLogger rowlogger)
+        private void StartReader(CancellationToken token, Task[] ETLtasks, IReader reader)
         {
             ETLtasks[0] = Task.Factory.StartNew(() =>
             {
                 try
                 {
-                    reader.Load(_inputQueue, ref _rowErrorCount, token, _logger, rowlogger.LogRow);
+                    reader.Load(_inputQueue, ref _rowErrorCount, token, _logger, LogRow);
                 }
                 catch (Exception ex)
                 {
@@ -208,5 +209,9 @@ namespace Transformation.Loader
             }, TaskCreationOptions.LongRunning);
         }
 
+        public void LogRow(bool rowSucess, bool rowDropped, long rowNumber, string rowError)
+        {
+            _rowloggers.ForEach(x => x.LogRow(rowSucess, rowDropped, rowNumber, rowError));
+        }
     }
 }
