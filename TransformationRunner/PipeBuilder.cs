@@ -61,10 +61,10 @@ namespace Transformation.Loader
 
                 try
                 {
-                    var _transformationFactory = new TransformationFactory();
+                    var _transformationFactory = new MefFactory<ITransformation>();
                     _container.ComposeParts(_transformationFactory);
 
-                    var tran = _transformationFactory.CreateTransformation(tranName, tranVersion);
+                    var tran = _transformationFactory.CreateComponent(tranName, tranVersion);
 
                     tran.Initialise(tranConfig, _globalData, _logger);
 

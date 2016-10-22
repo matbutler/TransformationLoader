@@ -51,6 +51,7 @@
     <Compile Include="Enums\TransformationFieldTypeEnum.cs" />
     <Compile Include="Enums\TransformationFilterOperatorEnum.cs" />
     <Compile Include="Exceptions\ReaderException.cs" />
+    <Compile Include="Exceptions\LoadProcessException.cs" />
     <Compile Include="Exceptions\TransformationPipeException.cs" />
     <Compile Include="Exceptions\TransformationException.cs" />
     <Compile Include="Exceptions\ConfigException.cs" />
@@ -60,7 +61,9 @@
     <Compile Include="Interfaces\IProcessStep.cs" />
     <Compile Include="Interfaces\IReader.cs" />
     <Compile Include="Interfaces\IRowLogger.cs" />
+    <Compile Include="MefFactory.cs" />
     <Compile Include="Models\ReaderField.cs" />
+    <Compile Include="RowLogAction.cs" />
     <Compile Include="Transformation.cs" />
     <Compile Include="Interfaces\ITransformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

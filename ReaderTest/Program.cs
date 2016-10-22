@@ -24,8 +24,9 @@ namespace ReaderTest
                                                 </fields>
                                             </reader>");
 
-            reader.Initialise(@"c:\temp\stafftest.csv", config, null);
+            var processInfo = new XElement("processInfo", new XElement("filename", @"c:\temp\stafftest.csv"));
 
+            reader.Initialise(processInfo, config, 1,  null);
 
             var sw = new Stopwatch();
             sw.Start();

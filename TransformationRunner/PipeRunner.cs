@@ -26,7 +26,7 @@ namespace Transformation.Loader
             _logger = logger;
         }
 
-        public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, ref int pipeCount, ref int rowprocessedCount, CancellationToken ct, Action<bool, bool, long, string> rowLogAction)
+        public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, ref int pipeCount, ref int rowprocessedCount, CancellationToken ct, RowLogAction rowLogAction)
         {
             _logger.Debug(string.Format("Pipe {0}: Started", _pipeNumber));
             Interlocked.Increment(ref pipeCount);
@@ -66,7 +66,7 @@ namespace Transformation.Loader
             }
         }
 
-        private void LoadRow(Dictionary<string, object> row, ref int errorCount, Action<bool, bool, long, string> rowLogAction)
+        private void LoadRow(Dictionary<string, object> row, ref int errorCount, RowLogAction rowLogAction)
         {
             string curTransformation = "";
 
@@ -99,12 +99,15 @@ namespace Transformation.Loader
 
                 rowLogAction?.Invoke(false, false, rowNo, errMsg);
 
-                _logger.Fatal(string.Format("Pipe {0}: {1}", _pipeNumber, errMsg));
-
                 Interlocked.Increment(ref errorCount);
                 if (_errorsAllowed != -1 && errorCount >= _errorsAllowed)
                 {
+                    _logger.Fatal(string.Format("Pipe {0}: {1}", _pipeNumber, errMsg));
                     throw (new TransformationPipeException(string.Format("Number of Errors has Exceeded the limit {0}", _errorsAllowed)));
+                }
+                else
+                {
+                    _logger.Warn(string.Format("Pipe {0}: {1}", _pipeNumber, errMsg));
                 }
             }
         }

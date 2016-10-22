@@ -13,8 +13,6 @@ namespace TransformationLoadTest
     {
         private string _filename = string.Empty;
         private readonly ILogger _logger;
-        private LoadProcess _runner;
-
 
         public LoadTestForm()
         {
@@ -48,7 +46,7 @@ namespace TransformationLoadTest
             }
         }
 
-        private void runBtn_Click(object sender, EventArgs e)
+        private async void runBtn_Click(object sender, EventArgs e)
         {
             XElement config;
             if (string.IsNullOrWhiteSpace(_filename))
@@ -69,12 +67,11 @@ namespace TransformationLoadTest
 
             statusListBox.Items.Clear();
 
-            _runner = new LoadProcess();
-             _runner.Initialise(config, new System.Threading.CancellationTokenSource(), _logger, null);
+            var _runner = new LoadProcess(config, new System.Threading.CancellationTokenSource(), _logger);
 
             var processInfo = new XElement("processinfo", new XElement("filename", _filename));
 
-            _runner.Process(processInfo);
+            await _runner.Run(processInfo);
         }
 
     }

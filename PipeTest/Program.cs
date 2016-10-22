@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using Transformation.Loader;
 
@@ -28,15 +29,13 @@ namespace PipeTest
                                         ");
 
 
-            var runner = new LoadProcess();
+            var runner = new TransformationProcess();
 
             runner.Initialise(config, new System.Threading.CancellationTokenSource(), new ConsoleLogger(), null);
 
-            var processInfo = new XElement("processinfo");
+            var processInfo = new XElement("processinfo", new XElement("filename", @"c:\temp\stafftest.csv"));
 
-            //@"c:\temp\stafftest.csv"
-
-            runner.Process(processInfo);
+            runner.Process(processInfo, new Dictionary<string, object>()).Wait();
 
             Console.ReadKey();
         }

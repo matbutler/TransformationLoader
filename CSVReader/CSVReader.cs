@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
+using TransformationCore;
 using TransformationCore.Exceptions;
 using TransformationCore.Helpers;
 using TransformationCore.Interfaces;
@@ -25,10 +26,18 @@ namespace CSVReader
         private char _delimeter = ',';
         private bool _hasHeader = true;
         private List<ReaderField> _fields = new List<ReaderField>();
+        private int _errorsAllowed;
 
-        public void Initialise(string fileName, XElement config, ILogger logger)
+        public void Initialise(XElement processInfo, XElement config, int errorsAllowed, ILogger logger)
         {
-            _fileName = fileName;
+            _errorsAllowed = errorsAllowed;
+
+            _fileName = processInfo.Element("filename")?.Value;
+
+            if (string.IsNullOrWhiteSpace(_fileName))
+            {
+                throw new ConfigException("Invalid/Missing Filename");
+            }
 
             if (config == null)
             {
@@ -99,24 +108,38 @@ namespace CSVReader
         }
 
 
-        public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, CancellationToken ct, ILogger logger, Action<bool, bool, long, string> rowLogAction)
+        public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, CancellationToken ct, ILogger logger, RowLogAction rowLogAction)
         {
             using (CsvReader csv = new CsvReader(new StreamReader(_fileName), _hasHeader, _delimeter))
             {
                 LookupFieldIndexFromName(csv);
 
-                while (csv.ReadNextRecord())
+                while (csv.ReadNextRecord() && !ct.IsCancellationRequested)
                 {
-                    var row = new Dictionary<string, object>();
-
-                    foreach (var field in _fields)
+                    try
                     {
-                        row.Add(field.Map, field.Converter(csv[field.Index.Value]));
+                        var row = new Dictionary<string, object>();
+
+                        foreach (var field in _fields)
+                        {
+                            row.Add(field.Map, field.Converter(csv[field.Index.Value]));
+                        }
+
+                        row.Add("#row", csv.CurrentRecordIndex);
+
+                        inputQueue.Add(row);
+                    }
+                    catch (Exception ex)
+                    {
+                        rowLogAction?.Invoke(false, false, csv.CurrentRecordIndex, ex.Message);
+
+                        Interlocked.Increment(ref errorCount);
+                        if (_errorsAllowed != -1 && errorCount >= _errorsAllowed)
+                        {
+                            throw (new ReaderException(string.Format("Number of Errors has Exceeded the limit {0}", _errorsAllowed)));
+                        }
                     }
 
-                    row.Add("#row", csv.CurrentRecordIndex);
-
-                    inputQueue.Add(row);
                 }
             }
         }
