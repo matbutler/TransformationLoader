@@ -1,14 +1,13 @@
 ﻿using Logging;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Xml.Linq;
-using TransformationCore.Interfaces;
+using TransformationCore.Models;
 
 namespace TransformationCore
 {
     public interface ITransformation
     {
-        void Initialise(XElement configXML, ReadOnlyDictionary<string, object> globalData, ILogger logger);
+        void Initialise(XElement configXML, GlobalData globalData, ILogger logger, int pipeNumber);
         void Transform(Dictionary<string, object> row);
         void Close();
     }

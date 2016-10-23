@@ -42,7 +42,7 @@ namespace SQLBulkLoader
             {
                 if (_initailised)
                 {
-                    logger.Debug("Already initailised");
+                    logger.Debug(string.Format("Pipe {0}: {1} Already initailised", PipeNumber, nameof(SQLBulkLoader)));
                     return;
                 }
 
@@ -53,7 +53,7 @@ namespace SQLBulkLoader
                     throw new ConfigException("Missing table name");
                 }
 
-                _connStr = configXML.Attribute("connection")?.Value ?? GlobalData["connection"].ToString();
+                _connStr = configXML.Attribute("connection")?.Value ?? GlobalData.Data["connection"].ToString();
 
                 if (!string.IsNullOrWhiteSpace(configXML.Attribute("batchsize")?.Value) && !int.TryParse(configXML.Attribute("batchsize")?.Value, out _batchSize))
                 {

@@ -50,7 +50,7 @@ namespace Transformation.Loader
             }
             catch (OperationCanceledException)
             {
-                throw new TransformationPipeException("Pipe Canceled Prior to Loader");
+                throw new TransformationPipeException("Pipe Cancelled");
             }
             finally
             {

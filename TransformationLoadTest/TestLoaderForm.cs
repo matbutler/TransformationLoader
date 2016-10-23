@@ -3,6 +3,7 @@ using PipeTest;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using Transformation.Loader;
@@ -13,6 +14,7 @@ namespace TransformationLoadTest
     {
         private string _filename = string.Empty;
         private readonly ILogger _logger;
+        private CancellationTokenSource _cancellationTokenSource;
 
         public LoadTestForm()
         {
@@ -67,12 +69,17 @@ namespace TransformationLoadTest
 
             statusListBox.Items.Clear();
 
-            var _runner = new LoadProcess(config, new System.Threading.CancellationTokenSource(), _logger);
+            _cancellationTokenSource = new System.Threading.CancellationTokenSource();
+            var _runner = new LoadProcess(config, _cancellationTokenSource, _logger);
 
-            var processInfo = new XElement("processinfo", new XElement("filename", _filename));
+            var processInfo = new XElement("processinfo",new XAttribute("id", Guid.NewGuid().ToString()), new XElement("filename", _filename));
 
             await _runner.Run(processInfo);
         }
 
+        private void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            _cancellationTokenSource?.Cancel();
+        }
     }
 }

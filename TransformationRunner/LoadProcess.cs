@@ -11,6 +11,7 @@ using System.Xml.Linq;
 using TransformationCore;
 using TransformationCore.Exceptions;
 using TransformationCore.Interfaces;
+using TransformationCore.Models;
 
 namespace Transformation.Loader
 {
@@ -21,6 +22,7 @@ namespace Transformation.Loader
         private readonly XElement _config;
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly IRowLogger _rowlogger;
+        private readonly GlobalData _globalData;
 
         public LoadProcess(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger = null)
         {
@@ -40,13 +42,14 @@ namespace Transformation.Loader
             catalog.Catalogs.Add(new DirectoryCatalog("Engine"));
 
             _container = new CompositionContainer(catalog);
+
+            var globalDictionaryBuilder = new GlobalDictionaryBuilder();
+            _globalData = new GlobalData(globalDictionaryBuilder.Build(_config));
         }
 
         public async Task Run(XElement processInfo)
         {
             var processStepElements = GetProcessSteps(_config);
-
-            var globalData = new Dictionary<string, object>();
 
             int count = 0;
             bool success = true;
@@ -57,7 +60,7 @@ namespace Transformation.Loader
 
                 processStep.Initialise(processStepConfig, _cancellationTokenSource, _logger, _rowlogger);
 
-                success = await processStep.Process(processInfo, globalData, success);
+                success = await processStep.Process(processInfo, _globalData, success);
             }
         }
 

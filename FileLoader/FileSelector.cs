@@ -28,8 +28,9 @@ namespace FileProcessing.Loader
 
                         return new ProcessFile
                         {
-                             FilePath = reader["Filepath"].ToString(),
-                             Config = config,
+                            FilePath = reader["Filepath"].ToString(),
+                            Id = (int)reader["Id"],
+                            Config = config,
                         };
                     }
                 }

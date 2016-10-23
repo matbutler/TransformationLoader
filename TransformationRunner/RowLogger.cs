@@ -14,7 +14,7 @@ namespace Transformation.Loader
         private string _filepath;
         private static SemaphoreSlim _fileLock = new SemaphoreSlim(1, 1);
 
-        public void Initialise(Guid processId)
+        public void Initialise(string processId)
         {
             _filepath = string.Format("LOADING_{0}.csv", processId);
         }

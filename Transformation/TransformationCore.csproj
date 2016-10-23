@@ -62,6 +62,7 @@
     <Compile Include="Interfaces\IReader.cs" />
     <Compile Include="Interfaces\IRowLogger.cs" />
     <Compile Include="MefFactory.cs" />
+    <Compile Include="Models\GlobalData.cs" />
     <Compile Include="Models\ReaderField.cs" />
     <Compile Include="RowLogAction.cs" />
     <Compile Include="Transformation.cs" />

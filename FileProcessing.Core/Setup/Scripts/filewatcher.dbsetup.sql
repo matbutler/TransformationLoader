@@ -134,6 +134,7 @@ BEGIN
 
 
 	SELECT
+		fq.[Id],
 		[Filepath],
 		[ProcessConfig]
 	FROM

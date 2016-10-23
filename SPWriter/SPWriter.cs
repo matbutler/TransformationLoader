@@ -36,45 +36,17 @@ namespace SPWriter
                 throw new ConfigException("Missing stored procedure name");
             }
 
-            _connStr = configXML.Attribute("connection")?.Value ?? GlobalData["connection"].ToString();
+            _connStr = configXML.Attribute("connection")?.Value ?? GlobalData.Data["connection"].ToString();
 
-            SetupParameters(configXML);
+            _parameters = PropertyMapper.Map(configXML);
+            SetGlobalParameters();
         }
 
-        private void SetupParameters(XElement configXML)
+        private void SetGlobalParameters()
         {
-            var columns = configXML.Element("columns");
-            if (columns == null || columns.Elements("column").Count() == 0)
-            {
-                throw new ConfigException("Missing column definition");
-            }
+            var globalParameters = _parameters.Where(x => x.IsGlobal).ToList();
 
-            _parameters = new List<ParameterMap>();
-
-            foreach (var column in columns.Elements("column"))
-            {
-                var name = column.Attribute("name")?.Value;
-
-                if (string.IsNullOrWhiteSpace(name))
-                {
-                    throw new ConfigException("Missing column name");
-                }
-
-                var size = column.Attribute("size")?.Value ?? "";
-                var map = string.IsNullOrWhiteSpace(column.Attribute("map")?.Value) ? name.ToLower() : column.Attribute("map").Value;
-
-                int sizeVal = 0;
-
-                _parameters.Add(new ParameterMap
-                {
-                    Map = map,
-                    Name = "@" + name,
-                    DbType = TypeConverter.GetDBType(column.Attribute("type")?.Value ?? ""),
-                    Size = int.TryParse(size, out sizeVal) ? (int?)sizeVal : null,
-                    Value = map.StartsWith("@") ? GlobalData[map] : null,
-                    IsGlobal = map.StartsWith("@"),
-                });
-            }
+            globalParameters.ForEach(x => x.Value = GlobalData.Data[x.Map]);
         }
 
         protected override void PreTransform(Dictionary<string, object> row)

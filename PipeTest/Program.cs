@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Linq;
 using Transformation.Loader;
+using TransformationCore.Models;
 
 namespace PipeTest
 {
@@ -33,9 +34,9 @@ namespace PipeTest
 
             runner.Initialise(config, new System.Threading.CancellationTokenSource(), new ConsoleLogger(), null);
 
-            var processInfo = new XElement("processinfo", new XElement("filename", @"c:\temp\stafftest.csv"));
+            var processInfo = new XElement("processinfo", new XAttribute("id", Guid.NewGuid().ToString()), new XElement("filename", @"c:\temp\stafftest.csv"));
 
-            runner.Process(processInfo, new Dictionary<string, object>()).Wait();
+            runner.Process(processInfo, new GlobalData()).Wait();
 
             Console.ReadKey();
         }

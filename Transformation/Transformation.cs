@@ -11,6 +11,7 @@ using TransformationCore.Helpers;
 using TransformationCore.Interfaces;
 using System.Collections.ObjectModel;
 using Logging;
+using TransformationCore.Models;
 
 namespace TransformationCore
 {
@@ -19,12 +20,15 @@ namespace TransformationCore
         protected List<TransformationFilter> _filters;
         protected List<TransformationField> _inputfields = new List<TransformationField>();
         protected List<TransformationField> _outputfields = new List<TransformationField>();
-        protected ReadOnlyDictionary<string, object> GlobalData { get; set; }
-        protected long RowNo { get; set; }
+        protected GlobalData GlobalData { get; private set; }
+        protected long RowNo { get; private set; }
+        protected int PipeNumber { get; private set; }
+        protected bool Dropped { get; set; } = false;
 
-        public void Initialise(XElement configXML, ReadOnlyDictionary<string, object> globalData, ILogger logger)
+        public void Initialise(XElement configXML, GlobalData globalData, ILogger logger, int pipeNumber)
         {
             GlobalData = globalData;
+            PipeNumber = pipeNumber;
 
             if (configXML != null)
             {
@@ -78,7 +82,7 @@ namespace TransformationCore
             {
                 tranFld.IsGlobalVar = true;
                 object globalObject = null;
-                GlobalData.TryGetValue(tranFld.Map, out globalObject);
+                GlobalData.Data.TryGetValue(tranFld.Map, out globalObject);
 
                 tranFld.GlobalVal = globalObject;
             }
@@ -134,6 +138,10 @@ namespace TransformationCore
 
         protected virtual void PostTransform(Dictionary<string, object> row)
         {
+            if (Dropped)
+            {
+                row["#DROP"] = true;
+            }
         }
 
         private void ConfigureFilters(XElement configXML)

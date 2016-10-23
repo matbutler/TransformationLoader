@@ -7,9 +7,8 @@ using System.ComponentModel.Composition.Hosting;
 using System.Linq;
 using System.Xml.Linq;
 using TransformationCore;
-using TransformationCore.Enums;
 using TransformationCore.Exceptions;
-using TransformationCore.Interfaces;
+using TransformationCore.Models;
 
 namespace Transformation.Loader
 {
@@ -18,9 +17,9 @@ namespace Transformation.Loader
         private readonly ILogger _logger;
         private readonly CompositionContainer _container;
         private readonly IEnumerable<XElement> _transactionElements;
-        private readonly ReadOnlyDictionary<string, object> _globalData;
+        private readonly GlobalData _globalData;
 
-        public PipeBuilder(XElement config, ReadOnlyDictionary<string, object> globalData, ILogger logger)
+        public PipeBuilder(XElement config, GlobalData globalData, ILogger logger)
         {
             _logger = logger;
             _globalData = globalData;
@@ -66,7 +65,7 @@ namespace Transformation.Loader
 
                     var tran = _transformationFactory.CreateComponent(tranName, tranVersion);
 
-                    tran.Initialise(tranConfig, _globalData, _logger);
+                    tran.Initialise(tranConfig, _globalData, _logger, pipeNumber);
 
                     pipe.Add(string.Format("{0} - {1}", tranName, count), tran);
 

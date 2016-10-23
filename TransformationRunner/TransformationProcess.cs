@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using TransformationCore;
 using TransformationCore.Interfaces;
+using TransformationCore.Models;
 
 namespace Transformation.Loader
 {
@@ -64,13 +65,13 @@ namespace Transformation.Loader
             _inputQueue = new BlockingCollection<Dictionary<string, object>>(maxQueue);
         }
 
-        public async Task<bool> Process(XElement processInfo, Dictionary<string, object> globalData, bool previousStepSucceeded = true)
+        public async Task<bool> Process(XElement processInfo, GlobalData globalData, bool previousStepSucceeded = true)
         {
             _LogTimer = new Timer(LogTimerTick, null, 10000, 10000);
 
             _sw.Start();
 
-            var result = await Start(processInfo);
+            var result = await Start(processInfo, globalData);
 
             _sw.Stop();
             _LogTimer.Dispose();
@@ -85,8 +86,15 @@ namespace Transformation.Loader
             _logger.Info(string.Format("{0} Active Pipes ({2:#,##0} rows  in {1:#,##0.00} Secs / {3:#,##0} RPS)", _activePipeCount, _sw.Elapsed.TotalSeconds, _rowprocessedCount, _rowprocessedCount / _sw.Elapsed.TotalSeconds));
         }
 
-        private async Task<bool> Start(XElement processInfo)
+        private async Task<bool> Start(XElement processInfo, GlobalData globalData)
         {
+            var processId = processInfo.Attribute("id")?.Value;
+
+            if (string.IsNullOrWhiteSpace(processId))
+            {
+                throw new Exception("Invalid/Missing Process Id");
+            }
+
             Task[] ETLtasks = new Task[_pipeCount + 1];
 
             _logger.Info(string.Format("Started (Pipes = {0})", _pipeCount));
@@ -98,11 +106,6 @@ namespace Transformation.Loader
                 var readerFactory = new ReaderFactory();
                 var reader = readerFactory.GetReader(readerConfig);
                 reader.Initialise(processInfo, readerConfig, 1, _logger);
-
-                var processId = Guid.NewGuid();
-
-                var globalDictionaryBuilder = new GlobalDictionaryBuilder();
-                var globalData = globalDictionaryBuilder.Build(_config);
 
                 var token = _cancellationTokenSource.Token;
 
@@ -151,7 +154,7 @@ namespace Transformation.Loader
             }
         }
 
-        private void StartPipes(ReadOnlyDictionary<string, object> globalData,CancellationToken token, Task[] ETLtasks)
+        private void StartPipes(GlobalData globalData,CancellationToken token, Task[] ETLtasks)
         {
             for (var i = 1; i <= _pipeCount; i++)
             {

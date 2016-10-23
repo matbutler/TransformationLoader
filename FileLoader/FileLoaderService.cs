@@ -69,7 +69,7 @@ namespace FileProcessing.Loader
                 {
                     var loadProcess = new LoadProcess(fileToProcess.Config, _cancellationTokenSource, _logger, new DBRowLogger(_connectionString));
 
-                    await loadProcess.Run(new XElement("processinfo", new XElement("filename", fileToProcess.FilePath)));
+                    await loadProcess.Run(new XElement("processinfo",new XAttribute("id", fileToProcess.Id.ToString()), new XElement("filename", fileToProcess.FilePath)));
                 }
 
                 await Task.Delay(_pollingTime);

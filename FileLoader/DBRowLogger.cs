@@ -22,7 +22,7 @@ namespace FileProcessing.Loader
             _connStr = connStr;
         }
 
-        public void Initialise(Guid processId)
+        public void Initialise(string processId)
         {
             _rows = 0;
 
