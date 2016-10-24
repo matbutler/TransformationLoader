@@ -10,6 +10,7 @@ using TransformationCore;
 using TransformationCore.Attributes;
 using TransformationCore.Enums;
 using TransformationCore.Interfaces;
+using TransformationCore.Models;
 
 namespace EmailValidator
 {
@@ -25,7 +26,7 @@ namespace EmailValidator
         [TransformationFieldAttrib(TransformationFieldTypeEnum.Output, false)]
         public bool Valid { get; set; }
 
-        protected override void Initialise(XElement configXML, ILogger logger)
+        protected override void Initialise(XElement configXML, GlobalData globalData, ILogger logger)
         {
         }
 

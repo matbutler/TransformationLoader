@@ -18,10 +18,11 @@ namespace ReaderTest
             var ct = new CancellationTokenSource().Token;
 
             var config = XElement.Parse(@"<reader name=""CSVReader"" delimeter=""|"">
-                                                <fields>
-                                                    <field name=""personnel Number"" type=""int""/>
-                                                    <field name=""position"" type=""string""/>
-                                                </fields>
+                                               	<fields>
+				                                <field name=""personnel number"" type=""int""/>
+                                                <field name=""surname"" type=""string"" />
+                                                <field name=""personal email addre"" map=""email"" type=""string"" />
+                                            </fields>
                                             </reader>");
 
             var processInfo = new XElement("processInfo", new XElement("filename", @"c:\temp\stafftest.csv"));

@@ -9,6 +9,7 @@ using System.Xml.Linq;
 using TransformationCore;
 using TransformationCore.Exceptions;
 using TransformationCore.Helpers;
+using TransformationCore.Models;
 
 namespace SPWriter
 {
@@ -22,7 +23,7 @@ namespace SPWriter
         private string _connStr;
         private List<ParameterMap> _parameters;
 
-        protected override void Initialise(XElement configXML, ILogger logger)
+        protected override void Initialise(XElement configXML, GlobalData globalData, ILogger logger)
         {
             if (configXML == null)
             {

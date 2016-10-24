@@ -10,6 +10,7 @@ using System.Xml.Linq;
 using TransformationCore;
 using TransformationCore.Exceptions;
 using TransformationCore.Helpers;
+using TransformationCore.Models;
 
 namespace SQLBulkLoader
 {
@@ -19,7 +20,7 @@ namespace SQLBulkLoader
     [ExportMetadata("Version", "1.0.0")]
     public class SQLBulkLoader : Transformation, IDisposable
     {
-        private static DataTable _loggingTable;
+        private static MappedDataTable _loggingTable;
         private static string _tablename;
         private static string _connStr;
         private static int _batchSize = 5000;
@@ -27,9 +28,8 @@ namespace SQLBulkLoader
         private static int _activeInstances = 0;
         private static bool _initailised = false;
         private static object _initialisationObject = new object();
-        private static Dictionary<string, string> _columns = new Dictionary<string, string>();
 
-        protected override void Initialise(XElement configXML, ILogger logger)
+        protected override void Initialise(XElement configXML, GlobalData globalData, ILogger logger)
         {
             if (configXML == null)
             {
@@ -60,37 +60,16 @@ namespace SQLBulkLoader
                     throw new ConfigException("Invalid batch size");
                 }
 
-                SetupDatatable(configXML);
-
-                _initailised = true;
-            }
-        }
-
-        private static void SetupDatatable(XElement configXML)
-        {
-            _loggingTable = new DataTable();
-
-            var columns = configXML.Element("columns");
-            if (columns == null || columns.Elements("column").Count() == 0)
-            {
-                throw new ConfigException("Missing column definition");
-            }
-
-            foreach (var column in columns.Elements("column"))
-            {
-                var name = column.Attribute("name")?.Value;
-                var type = column.Attribute("type")?.Value;
-                var format = column.Attribute("format")?.Value;
-                var map = string.IsNullOrWhiteSpace(column.Attribute("map")?.Value) ? name.ToLower() : column.Attribute("map").Value;
-
-                _columns.Add(name, map);
-
-                if (string.IsNullOrWhiteSpace(type))
+                try
                 {
-                    throw new ConfigException(string.Format("Invalid type for column {0}", name));
+                    _loggingTable = DataTableBuilder.Build(configXML);
+                }
+                catch (Exception ex)
+                {
+                    throw new ConfigException("Invalid Configuration: " + ex.Message);
                 }
 
-                _loggingTable.Columns.Add(new DataColumn { DataType = TypeConverter.GetType(type), ColumnName = name });
+                _initailised = true;
             }
         }
 
@@ -105,14 +84,14 @@ namespace SQLBulkLoader
                     bulkCopy.DestinationTableName = _tablename;
                     bulkCopy.BatchSize = _batchSize;
 
-                    foreach (var column in _columns)
+                    foreach (var column in _loggingTable.ColumnMappings)
                     {
                         bulkCopy.ColumnMappings.Add(column.Key, column.Key);
                     }
 
-                    bulkCopy.WriteToServer(_loggingTable);
+                    bulkCopy.WriteToServer(_loggingTable.Table);
 
-                    _loggingTable.Clear();
+                    _loggingTable.Table.Clear();
                 }
             }
         }
@@ -121,17 +100,17 @@ namespace SQLBulkLoader
         {
             base.PreTransform(row);
 
-            lock (_loggingTable.Rows.SyncRoot)
+            lock (_loggingTable.Table.Rows.SyncRoot)
             {
                 var rowNo = Interlocked.Increment(ref _rows);
-                DataRow newRow = _loggingTable.NewRow();
+                DataRow newRow = _loggingTable.Table.NewRow();
 
-                foreach (var column in _columns)
+                foreach (var column in _loggingTable.ColumnMappings)
                 {
                     newRow[column.Key] = row[column.Value];
                 }
 
-                _loggingTable.Rows.Add(newRow);
+                _loggingTable.Table.Rows.Add(newRow);
 
                 if (rowNo >= _batchSize)
                 {

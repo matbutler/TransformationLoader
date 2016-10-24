@@ -210,7 +210,7 @@ namespace Transformation.Loader
 
         public void LogRow(bool rowSucess, bool rowDropped, long rowNumber, string rowError)
         {
-            _rowloggers.ForEach(x => x.LogRow(rowSucess, rowDropped, rowNumber, rowError));
+             _rowloggers.ForEach(x => x.LogRow(rowSucess, rowDropped, rowNumber, rowError));
         }
     }
 }

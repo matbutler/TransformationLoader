@@ -2,6 +2,7 @@
 using SPWriter.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
@@ -15,6 +16,10 @@ using TransformationCore.Models;
 
 namespace SPWriter
 {
+    [Export(typeof(IProcessStep))]
+    [PartCreationPolicy(CreationPolicy.NonShared)]
+    [ExportMetadata("Name", "SPWriterStep")]
+    [ExportMetadata("Version", "1.0.0")]
     public class SPWriterStep : IProcessStep
     {
         private string _storedProcedure;

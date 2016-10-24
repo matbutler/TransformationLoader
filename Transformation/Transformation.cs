@@ -37,7 +37,7 @@ namespace TransformationCore
                 ConfigureFilters(configXML);
             }
 
-            Initialise(configXML, logger);
+            Initialise(configXML, globalData, logger);
         }
 
         private void SetupFields(XElement configXML)
@@ -124,7 +124,7 @@ namespace TransformationCore
             }
         }
 
-        protected abstract void Initialise(XElement configXML, ILogger logger);
+        protected abstract void Initialise(XElement configXML, GlobalData globalData, ILogger logger);
         protected abstract void Transform();
 
         public virtual void Close()

@@ -9,49 +9,73 @@ using TransformationCore;
 
 namespace Transformation.Loader
 {
-    public class RowLogger : IRowLogger
+    public class RowLogger : IRowLogger, IDisposable
     {
         private string _filepath;
-        private static SemaphoreSlim _fileLock = new SemaphoreSlim(1, 1);
+        private static object locker = new Object();
+        private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
+        private static StreamWriter _stream = null;
 
         public void Initialise(string processId)
         {
             _filepath = string.Format("LOADING_{0}.csv", processId);
+            _stream = new StreamWriter(_filepath, true, Encoding.UTF8, 65536);
         }
 
         public void Complete()
         {
+            if(_stream != null)
+            {
+                _stream.Close();
+                _stream.Dispose();
+            }
+
             if (File.Exists(_filepath))
             {
                 File.Delete(_filepath);
             }
         }
 
-        private async Task WriteTextAsync(string filePath, string text)
+        public void LogRow(bool rowSucess, bool rowDropped, long rowNumber, string rowError)
         {
-            byte[] encodedText = Encoding.Unicode.GetBytes(text);
-
-            await _fileLock.WaitAsync();
-
-            FileStream sourceStream = null;
-            try 
+            if(_stream == null)
             {
-                sourceStream = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, bufferSize: 4096, useAsync: true);
-                await sourceStream.WriteAsync(encodedText, 0, encodedText.Length);
+                throw new Exception("Rowlogger file not set");
+            }
+
+            _readWriteLock.EnterWriteLock();
+            try
+            {
+                _stream.WriteLine(string.Format("{0},{1},{2},{3}", rowNumber, rowSucess, rowDropped, rowError));
             }
             finally
             {
-                _fileLock.Release();
-                if (sourceStream != null)
-                {
-                    sourceStream.Dispose();
-                }
+                _readWriteLock.ExitWriteLock();
             }
         }
 
-        public void LogRow(bool rowSucess, bool rowDropped, long rowNumber, string rowError)
+        bool disposed = false;
+
+        public void Dispose()
         {
-            WriteTextAsync(_filepath, string.Format("{0},{1},{2},{3}" + Environment.NewLine, rowNumber, rowSucess, rowDropped, rowError)).Wait();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        // Protected implementation of Dispose pattern.
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                _stream?.Dispose();
+            }
+
+            // Free any unmanaged objects here.
+            //
+            disposed = true;
         }
     }
 }

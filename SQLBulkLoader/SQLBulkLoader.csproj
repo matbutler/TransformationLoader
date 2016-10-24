@@ -42,8 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CacheTableLoader.cs" />
+    <Compile Include="DataTableBuilder.cs" />
+    <Compile Include="MappedDataTable.cs" />
     <Compile Include="SQLBulkLoader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SQLBulkLoaderStep.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Logging\Logging.csproj">
