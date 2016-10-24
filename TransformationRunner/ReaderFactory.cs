@@ -11,9 +11,15 @@ namespace Transformation.Loader
     {
         private readonly CompositionContainer _container;
 
-        public ReaderFactory(CompositionContainer container)
+        public ReaderFactory()
         {
-            _container = container;
+
+            var catalog = new AggregateCatalog();
+
+            catalog.Catalogs.Add(new AssemblyCatalog(typeof(LoadProcess).Assembly));
+            catalog.Catalogs.Add(new DirectoryCatalog("Engine"));
+
+            _container = new CompositionContainer(catalog);
         }
 
         public IReader GetReader(XElement readerConfig)

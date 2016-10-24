@@ -50,6 +50,7 @@
     <Compile Include="Enums\MessageLevel.cs" />
     <Compile Include="Enums\TransformationFieldTypeEnum.cs" />
     <Compile Include="Enums\TransformationFilterOperatorEnum.cs" />
+    <Compile Include="Exceptions\FieldConversionException.cs" />
     <Compile Include="Exceptions\ReaderException.cs" />
     <Compile Include="Exceptions\LoadProcessException.cs" />
     <Compile Include="Exceptions\TransformationPipeException.cs" />

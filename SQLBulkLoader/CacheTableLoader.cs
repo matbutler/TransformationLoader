@@ -18,11 +18,9 @@ namespace SQLBulkLoader
     [PartCreationPolicy(CreationPolicy.NonShared)]
     [ExportMetadata("Name", "CacheTableLoader")]
     [ExportMetadata("Version", "1.0.0")]
-    public class CacheTableLoader : Transformation, IDisposable
+    public class CacheTableLoader : Transformation
     {
         private static MappedDataTable _loggingTable;
-        private static int _activeInstances = 0;
-        private static bool _initailised = false;
         private static object _initialisationObject = new object();
 
         protected override void Initialise(XElement configXML, GlobalData globalData, ILogger logger)
@@ -32,11 +30,15 @@ namespace SQLBulkLoader
                 throw new ConfigException("Missing Config");
             }
 
-            Interlocked.Increment(ref _activeInstances);
+            var tablename = configXML.Attribute("tablename")?.Value;
+            if (tablename == null)
+            {
+                throw new ConfigException("Missing Table name");
+            }
 
             lock (_initialisationObject)
             {
-                if (_initailised)
+                if (!globalData.CacheDataSet.Tables.Contains(tablename))
                 {
                     logger.Debug(string.Format("Pipe {0}: {1} Already initailised", PipeNumber, nameof(CacheTableLoader)));
                     return;
@@ -52,8 +54,6 @@ namespace SQLBulkLoader
                 }
 
                 globalData.CacheDataSet.Tables.Add(_loggingTable.Table);
-
-                _initailised = true;
             }
         }
 
@@ -77,23 +77,6 @@ namespace SQLBulkLoader
 
         protected override void Transform()
         {
-        }
-
-        public override void Close()
-        {
-            var count = Interlocked.Decrement(ref _activeInstances);
-            if (count == 0)
-            {
-                lock (_initialisationObject)
-                {
-                    _initailised = false;
-                }
-            }
-        }
-
-        public void Dispose()
-        {
-            Close();
         }
     }
 }

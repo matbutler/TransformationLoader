@@ -27,7 +27,7 @@ namespace SPWriter
         private string _connStr;
         private List<ParameterMap> _parameters;
 
-        public void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger, CompositionContainer container)
+        public void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger)
         {
             if (config == null)
             {

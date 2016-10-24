@@ -9,7 +9,7 @@ namespace TransformationCore.Interfaces
 {
     public interface IProcessStep
     {
-        void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger, CompositionContainer container);
+        void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger);
 
         Task<bool> Process(XElement processInfo, GlobalData globalData, bool previousStepSucceeded = true);
     }

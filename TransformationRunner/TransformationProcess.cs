@@ -33,9 +33,8 @@ namespace Transformation.Loader
         private int _activePipeCount;
         private int _rowErrorCount;
         private List<IRowLogger> _rowloggers;
-        private CompositionContainer _container;
 
-        public void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger, CompositionContainer container)
+        public void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger)
         {
             if (config == null)
             {
@@ -43,7 +42,6 @@ namespace Transformation.Loader
             }
 
             _config = config;
-            _container = container;
             _logger = logger;
             _rowloggers = new List<IRowLogger>()
             {
@@ -106,7 +104,7 @@ namespace Transformation.Loader
             {
                 var readerConfig = _config.Element("reader");
 
-                var readerFactory = new ReaderFactory(_container);
+                var readerFactory = new ReaderFactory();
                 var reader = readerFactory.GetReader(readerConfig);
                 reader.Initialise(processInfo, readerConfig, 1, _logger);
 
@@ -122,13 +120,15 @@ namespace Transformation.Loader
                 {
                     await Task.WhenAll(ETLtasks);
 
-                    _rowloggers.ForEach(x => x.Complete());
-
                     return true;
                 }
                 catch (AggregateException ex)
                 {
                     LogException(ex);
+                }
+                finally
+                {
+                    _rowloggers.ForEach(x => x.Complete());
                 }
             }
             catch (Exception ex)
@@ -163,7 +163,7 @@ namespace Transformation.Loader
             {
                 var pipeno = i;
 
-                var pipeBuilder = new PipeBuilder(_config, globalData, _logger, _container);
+                var pipeBuilder = new PipeBuilder(_config, globalData, _logger);
 
                 ETLtasks[i] = Task.Factory.StartNew(() =>
                 {

@@ -30,7 +30,7 @@ namespace SQLBulkLoader
         private ILogger _logger;
         private Dictionary<string, string> _columnMappings { get; set; }
 
-        public void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger, CompositionContainer container)
+        public void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger)
         {
             if (config == null)
             {

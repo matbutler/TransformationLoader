@@ -65,7 +65,7 @@ namespace Transformation.Loader
 
                 var processStep = GetProcessStep(count, processStepConfig);
 
-                processStep.Initialise(processStepConfig, _cancellationTokenSource, _logger, _rowlogger, _container);
+                processStep.Initialise(processStepConfig, _cancellationTokenSource, _logger, _rowlogger);
 
                 try
                 {

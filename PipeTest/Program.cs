@@ -33,14 +33,7 @@ namespace PipeTest
 
             var runner = new TransformationProcess();
 
-            var catalog = new AggregateCatalog();
-
-            catalog.Catalogs.Add(new AssemblyCatalog(typeof(LoadProcess).Assembly));
-            catalog.Catalogs.Add(new DirectoryCatalog("Engine"));
-
-            var container = new CompositionContainer(catalog);
-
-            runner.Initialise(config, new System.Threading.CancellationTokenSource(), new ConsoleLogger(), null, container);
+            runner.Initialise(config, new System.Threading.CancellationTokenSource(), new ConsoleLogger(), null);
 
             var processInfo = new XElement("processinfo", new XAttribute("id", Guid.NewGuid().ToString()), new XElement("filename", @"c:\temp\stafftest.csv"));
 

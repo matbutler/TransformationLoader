@@ -108,6 +108,14 @@ namespace CSVReader
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="inputQueue"></param>
+        /// <param name="errorCount"></param>
+        /// <param name="ct"></param>
+        /// <param name="logger"></param>
+        /// <param name="rowLogAction"></param>
         public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, CancellationToken ct, ILogger logger, RowLogAction rowLogAction)
         {
             using (CsvReader csv = new CsvReader(new StreamReader(_fileName), _hasHeader, _delimeter))
@@ -122,7 +130,14 @@ namespace CSVReader
 
                         foreach (var field in _fields)
                         {
-                            row.Add(field.Map, field.Converter(csv[field.Index.Value]));
+                            try
+                            {
+                                row.Add(field.Map, field.Converter(csv[field.Index.Value]));
+                            }
+                            catch(Exception ex)
+                            {
+                                throw new FieldConversionException(string.Format("Invalid field conversion {0} ({1})", field.Map, field.Index.Value), ex);
+                            }
                         }
 
                         row.Add("#row", csv.CurrentRecordIndex);
