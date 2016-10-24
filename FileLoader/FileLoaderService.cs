@@ -7,6 +7,7 @@ using System.Threading;
 using FileProcessing.Loader.Models;
 using Logging;
 using System.Xml.Linq;
+using FileProcessing.Loader.Models.Exceptions;
 
 namespace FileProcessing.Loader
 {
@@ -57,23 +58,45 @@ namespace FileProcessing.Loader
             return true;
         }
 
-        private async Task StartFileProcessLoop()
+        private Task StartFileProcessLoop()
         {
             var fileSelector = new FileSelector(_connectionString);
 
-            while (!_cancellationTokenSource.Token.IsCancellationRequested)
+            return Task.Run(async () =>
             {
-                ProcessFile fileToProcess = null;
+                _logger.Info("File Loader Started");
 
-                while ((fileToProcess = fileSelector.GetFileToProcess()) != null && !_cancellationTokenSource.Token.IsCancellationRequested)
-                {
-                    var loadProcess = new LoadProcess(fileToProcess.Config, _cancellationTokenSource, _logger, new DBRowLogger(_connectionString));
+                while (!_cancellationTokenSource.Token.IsCancellationRequested)
+                {    
+                    ProcessFile fileToProcess = null;
+                    try
+                    {
+                        while ((fileToProcess = fileSelector.GetFileToProcess()) != null && !_cancellationTokenSource.Token.IsCancellationRequested)
+                        {
+                            _logger.Debug(string.Format("Begin loading {0}", fileToProcess.FilePath));
 
-                    await loadProcess.Run(new XElement("processinfo",new XAttribute("id", fileToProcess.Id.ToString()), new XElement("filename", fileToProcess.FilePath)));
+                            var loadProcess = new LoadProcess(fileToProcess.Config, _cancellationTokenSource, _logger, new DBRowLogger(_connectionString, fileToProcess.Id));
+
+                            await loadProcess.Run(new XElement("processinfo", new XAttribute("id", fileToProcess.Id.ToString()), new XElement("filename", fileToProcess.FilePath)));
+
+                            //TODO POST PROCESS UPDATE
+                        }
+                    }
+                    catch(ConfigException ex)
+                    {
+                        _logger.Error("Invalid Configuration", ex);
+                    }
+
+                    try
+                    {
+                        await Task.Delay(_pollingTime, _cancellationTokenSource.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return;
+                    }
                 }
-
-                await Task.Delay(_pollingTime);
-            }
+            });
         }
 
         public bool Stop()

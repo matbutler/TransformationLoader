@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,8 +33,9 @@ namespace Transformation.Loader
         private int _activePipeCount;
         private int _rowErrorCount;
         private List<IRowLogger> _rowloggers;
+        private CompositionContainer _container;
 
-        public void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger)
+        public void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger, CompositionContainer container)
         {
             if (config == null)
             {
@@ -41,6 +43,7 @@ namespace Transformation.Loader
             }
 
             _config = config;
+            _container = container;
             _logger = logger;
             _rowloggers = new List<IRowLogger>()
             {
@@ -103,7 +106,7 @@ namespace Transformation.Loader
             {
                 var readerConfig = _config.Element("reader");
 
-                var readerFactory = new ReaderFactory();
+                var readerFactory = new ReaderFactory(_container);
                 var reader = readerFactory.GetReader(readerConfig);
                 reader.Initialise(processInfo, readerConfig, 1, _logger);
 
@@ -113,7 +116,7 @@ namespace Transformation.Loader
 
                 StartReader(token, ETLtasks, reader);
 
-                StartPipes(globalData ,token, ETLtasks);
+                StartPipes(globalData, ETLtasks);
 
                 try
                 {
@@ -154,13 +157,13 @@ namespace Transformation.Loader
             }
         }
 
-        private void StartPipes(GlobalData globalData,CancellationToken token, Task[] ETLtasks)
+        private void StartPipes(GlobalData globalData, Task[] ETLtasks)
         {
             for (var i = 1; i <= _pipeCount; i++)
             {
                 var pipeno = i;
 
-                var pipeBuilder = new PipeBuilder(_config, globalData, _logger);
+                var pipeBuilder = new PipeBuilder(_config, globalData, _logger, _container);
 
                 ETLtasks[i] = Task.Factory.StartNew(() =>
                 {
@@ -170,7 +173,7 @@ namespace Transformation.Loader
                         var tpipe = new PipeRunner(pipeno, pipe, 1, _logger);
                         try
                         {
-                           tpipe.Load(_inputQueue, ref _rowErrorCount, ref _activePipeCount, ref _rowprocessedCount, token, LogRow);
+                            tpipe.Load(_inputQueue, ref _rowErrorCount, ref _activePipeCount, ref _rowprocessedCount, _cancellationTokenSource.Token, LogRow);
                         }
                         finally
                         {
@@ -210,7 +213,7 @@ namespace Transformation.Loader
 
         public void LogRow(bool rowSucess, bool rowDropped, long rowNumber, string rowError)
         {
-             _rowloggers.ForEach(x => x.LogRow(rowSucess, rowDropped, rowNumber, rowError));
+            _rowloggers.ForEach(x => x.LogRow(rowSucess, rowDropped, rowNumber, rowError));
         }
     }
 }

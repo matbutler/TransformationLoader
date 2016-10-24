@@ -3,6 +3,7 @@ using SPWriter.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace SPWriter
         private string _connStr;
         private List<ParameterMap> _parameters;
 
-        public void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger)
+        public void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger, CompositionContainer container)
         {
             if (config == null)
             {

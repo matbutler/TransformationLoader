@@ -9,6 +9,13 @@ namespace Transformation.Loader
 {
     public class ReaderFactory : MefFactory<IReader>
     {
+        private readonly CompositionContainer _container;
+
+        public ReaderFactory(CompositionContainer container)
+        {
+            _container = container;
+        }
+
         public IReader GetReader(XElement readerConfig)
         {
             string readerName = string.Empty;
@@ -25,10 +32,7 @@ namespace Transformation.Loader
                     throw new Exception("Reader name missing from Config.");
                 }
 
-                var catalog = new DirectoryCatalog("Engine");
-                var container = new CompositionContainer(catalog);
-
-                container.ComposeParts(this);
+                _container.ComposeParts(this);
 
                 return CreateComponent(readerName, readerVersion);
             }

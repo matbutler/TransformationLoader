@@ -1,6 +1,6 @@
-﻿DROP TABLE FileProcessConfig
-DROP TABLE FileProcessQueue
-DROP TABLE FileProcessAudit
+﻿--DROP TABLE FileProcessConfig
+--DROP TABLE FileProcessQueue
+--DROP TABLE FileProcessAudit
 
 IF NOT EXISTS ( SELECT * FROM sys.objects WHERE type = 'U' AND name = 'FileProcessConfig' ) BEGIN
 	CREATE TABLE [dbo].[FileProcessConfig](
@@ -14,8 +14,42 @@ IF NOT EXISTS ( SELECT * FROM sys.objects WHERE type = 'U' AND name = 'FileProce
 	)
 END
 
+IF NOT EXISTS ( SELECT * FROM sys.objects WHERE type = 'U' AND name = 'FileProcessRowAudit' ) BEGIN
+	CREATE TABLE [dbo].[FileProcessRowAudit](
+		[Id]					INT IDENTITY(1,1) NOT NULL,
+		[FileProcessQueue_Id]	INT NOT NULL,
+		[RowNumber]				INT NOT NULL,
+		[Success]				BIT NOT NULL,
+		[Dropped]				BIT NOT NULL,
+		[ErrorMsg]				NVARCHAR(max) NOT NULL,
+		CONSTRAINT [PK_FileProcessRowAudit] PRIMARY KEY CLUSTERED 
+		(
+			[Id] ASC
+		)
+	)
+END
+
 TRUNCATE TABLE FileProcessConfig
-INSERT INTO FileProcessConfig([Filepattern], [ProcessConfig]) SELECT '.*',''
+INSERT INTO FileProcessConfig([Filepattern], [ProcessConfig]) SELECT 'stafftest.csv',' <loadprocess>
+	<globalvar name="connection" value="Server=WORK_PC\SQLEXPRESS;Database=TestLoad;Trusted_Connection=True;" valuetype="string" />
+	<step name="transformation">
+		<reader name="CSVReader" delimeter="|">
+			<fields>
+				<field name="personnel number" type="int"/>
+				<field name="surname" type="string"/>
+			</fields>
+		</reader>
+		<pipe pipes="1">
+			<transformation name="CacheTableLoader" tablename="test">
+				<columns>
+					<column name="personnel number" type="int"/>
+					<column name="surname" type="string"/>
+				</columns>
+			</transformation>
+		</pipe>
+	</step>
+	<step name="SQLBulkLoaderStep" table="test" />
+ </loadprocess>'
 
 IF NOT EXISTS ( SELECT * FROM sys.objects WHERE type = 'U' AND name = 'FileProcessQueue' ) BEGIN
 	CREATE TABLE [dbo].[FileProcessQueue](
@@ -116,6 +150,8 @@ END
 EXEC('CREATE PROCEDURE GetNextFileToProcess
 AS
 BEGIN
+	SET NOCOUNT ON;
+
 	DECLARE @ids TABLE (id INT);
 
 	;WITH LatestFile AS (

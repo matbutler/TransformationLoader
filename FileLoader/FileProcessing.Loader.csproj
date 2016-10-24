@@ -49,6 +49,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\ConfigException.cs" />
     <Compile Include="FileLoaderService.cs" />
     <Compile Include="FileSelector.cs" />
     <Compile Include="IFileSelector.cs" />

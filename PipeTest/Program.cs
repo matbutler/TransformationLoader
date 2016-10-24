@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition.Hosting;
 using System.Xml.Linq;
 using Transformation.Loader;
 using TransformationCore.Models;
@@ -32,7 +33,14 @@ namespace PipeTest
 
             var runner = new TransformationProcess();
 
-            runner.Initialise(config, new System.Threading.CancellationTokenSource(), new ConsoleLogger(), null);
+            var catalog = new AggregateCatalog();
+
+            catalog.Catalogs.Add(new AssemblyCatalog(typeof(LoadProcess).Assembly));
+            catalog.Catalogs.Add(new DirectoryCatalog("Engine"));
+
+            var container = new CompositionContainer(catalog);
+
+            runner.Initialise(config, new System.Threading.CancellationTokenSource(), new ConsoleLogger(), null, container);
 
             var processInfo = new XElement("processinfo", new XAttribute("id", Guid.NewGuid().ToString()), new XElement("filename", @"c:\temp\stafftest.csv"));
 

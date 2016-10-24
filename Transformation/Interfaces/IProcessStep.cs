@@ -1,4 +1,5 @@
 ﻿using Logging;
+using System.ComponentModel.Composition.Hosting;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -8,7 +9,7 @@ namespace TransformationCore.Interfaces
 {
     public interface IProcessStep
     {
-        void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger);
+        void Initialise(XElement config, CancellationTokenSource cancellationTokenSource, ILogger logger, IRowLogger rowlogger, CompositionContainer container);
 
         Task<bool> Process(XElement processInfo, GlobalData globalData, bool previousStepSucceeded = true);
     }

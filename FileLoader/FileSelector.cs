@@ -1,4 +1,5 @@
 ﻿using FileProcessing.Loader.Models;
+using System;
 using System.Data.SqlClient;
 using System.Xml.Linq;
 
@@ -15,7 +16,7 @@ namespace FileProcessing.Loader
         public ProcessFile GetFileToProcess()
         {
             using (var connection = new SqlConnection(_connectionString))
-            using (var command = new SqlCommand("FileProcessAuditLog", connection))
+            using (var command = new SqlCommand("GetNextFileToProcess", connection))
             {
                 connection.Open();
                 command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -24,13 +25,21 @@ namespace FileProcessing.Loader
                 {
                     if (reader.Read())
                     {
-                        var config = XElement.Parse(reader["FileProcessConfig"].ToString());
+                        var config = reader["ProcessConfig"]?.ToString();
+                        var filepath = reader["Filepath"].ToString();
+
+                        if (string.IsNullOrWhiteSpace(config))
+                        {
+                            throw new Exception(string.Format("Missing file configuration for file {0}", filepath));
+                        }
+
+                        var configXML = XElement.Parse(config);
 
                         return new ProcessFile
                         {
-                            FilePath = reader["Filepath"].ToString(),
+                            FilePath = filepath,
                             Id = (int)reader["Id"],
-                            Config = config,
+                            Config = configXML,
                         };
                     }
                 }

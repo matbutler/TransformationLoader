@@ -51,17 +51,39 @@ namespace Transformation.Loader
         {
             var processStepElements = GetProcessSteps(_config);
 
+            _logger.Info(string.Format("Started: {0:dd-MM-yy HH:mm:ss}", DateTime.Now));
+
             int count = 0;
             bool success = true;
             foreach (var processStepConfig in processStepElements)
             {
                 count++;
+
+                var continueOnFail = processStepConfig.Attribute("continueonfail") != null ? (bool)processStepConfig.Attribute("continueonfail") : false;
+
+                _logger.Info(string.Format("Process {1}: {0:dd-MM-yy HH:mm:ss}", DateTime.Now, count));
+
                 var processStep = GetProcessStep(count, processStepConfig);
 
-                processStep.Initialise(processStepConfig, _cancellationTokenSource, _logger, _rowlogger);
+                processStep.Initialise(processStepConfig, _cancellationTokenSource, _logger, _rowlogger, _container);
 
-                success = await processStep.Process(processInfo, _globalData, success);
+                try
+                {
+                    success = await processStep.Process(processInfo, _globalData, success);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(string.Format("Error running process {0}", count), ex);
+                    success = false;
+                }
+
+                if(!success && !continueOnFail)
+                {
+                    break;
+                }
             }
+
+            _logger.Info(string.Format("Completed: {0:dd-MM-yy HH:mm:ss}", DateTime.Now));
         }
 
         private IProcessStep GetProcessStep(int count, XElement processStepConfig)

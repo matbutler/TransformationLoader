@@ -1,10 +1,6 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 using System.Data.SqlClient;
-using System.IO;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using TransformationCore;
 
 namespace FileProcessing.Loader
@@ -12,24 +8,24 @@ namespace FileProcessing.Loader
     public class DBRowLogger : IRowLogger
     {
         private string _connStr;
-        private string _tablename;
+        private int _id;
         private DataTable _loggingTable;
         private int _rows;
         private static SemaphoreSlim _fileLock = new SemaphoreSlim(1, 1);
 
-        public DBRowLogger(string connStr)
+        public DBRowLogger(string connStr, int id)
         {
             _connStr = connStr;
+            _id = id;
         }
 
         public void Initialise(string processId)
         {
             _rows = 0;
 
-            _tablename = string.Format("LOADING_{0}", processId);
-
             _loggingTable = new DataTable();
 
+            _loggingTable.Columns.Add(new DataColumn { DataType = typeof(int), ColumnName = "FileProcessQueue_Id" });
             _loggingTable.Columns.Add(new DataColumn { DataType = typeof(int), ColumnName = "RowNumber" });
             _loggingTable.Columns.Add(new DataColumn { DataType = typeof(bool), ColumnName = "Success" });
             _loggingTable.Columns.Add(new DataColumn { DataType = typeof(bool), ColumnName = "Dropped" });
@@ -52,9 +48,10 @@ namespace FileProcessing.Loader
                 {
                     using (SqlBulkCopy bulkCopy = new SqlBulkCopy(conn, SqlBulkCopyOptions.TableLock, null))
                     {
-                        bulkCopy.DestinationTableName = _tablename;
+                        bulkCopy.DestinationTableName = "FileProcessRowAudit";
                         bulkCopy.BatchSize = 5000;
 
+                        bulkCopy.ColumnMappings.Add("FileProcessQueue_Id", "FileProcessQueue_Id");
                         bulkCopy.ColumnMappings.Add("RowNumber", "RowNumber");
                         bulkCopy.ColumnMappings.Add("Success", "Success");
                         bulkCopy.ColumnMappings.Add("Dropped", "Dropped");
@@ -62,10 +59,6 @@ namespace FileProcessing.Loader
 
                         bulkCopy.WriteToServer(_loggingTable);
                     }
-                }
-                catch (Exception)
-                {
-                    throw;
                 }
                 finally
                 {
@@ -80,10 +73,11 @@ namespace FileProcessing.Loader
             {
                 DataRow newRow = _loggingTable.NewRow();
 
+                newRow["FileProcessQueue_Id"] = _id;
                 newRow["RowNumber"] = rowNumber;
                 newRow["Success"] = rowSucess;
                 newRow["Dropped"] = rowDropped;
-                newRow["ErrorMsg"] = rowError;
+                newRow["ErrorMsg"] = string.IsNullOrWhiteSpace(rowError) ? "" : rowError;
 
                 _loggingTable.Rows.Add(newRow);
                 _rows++;

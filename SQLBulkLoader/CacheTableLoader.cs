@@ -18,9 +18,10 @@ namespace SQLBulkLoader
     [PartCreationPolicy(CreationPolicy.NonShared)]
     [ExportMetadata("Name", "CacheTableLoader")]
     [ExportMetadata("Version", "1.0.0")]
-    public class CacheTableLoader : Transformation
+    public class CacheTableLoader : Transformation, IDisposable
     {
         private static MappedDataTable _loggingTable;
+        private static int _activeInstances = 0;
         private static bool _initailised = false;
         private static object _initialisationObject = new object();
 
@@ -30,6 +31,8 @@ namespace SQLBulkLoader
             {
                 throw new ConfigException("Missing Config");
             }
+
+            Interlocked.Increment(ref _activeInstances);
 
             lock (_initialisationObject)
             {
@@ -43,7 +46,7 @@ namespace SQLBulkLoader
                 {
                     _loggingTable = DataTableBuilder.Build(configXML);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     throw new ConfigException("Invalid Configuration: " + ex.Message);
                 }
@@ -74,6 +77,23 @@ namespace SQLBulkLoader
 
         protected override void Transform()
         {
+        }
+
+        public override void Close()
+        {
+            var count = Interlocked.Decrement(ref _activeInstances);
+            if (count == 0)
+            {
+                lock (_initialisationObject)
+                {
+                    _initailised = false;
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            Close();
         }
     }
 }
