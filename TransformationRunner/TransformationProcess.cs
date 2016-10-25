@@ -163,7 +163,12 @@ namespace Transformation.Loader
             {
                 var pipeno = i;
 
-                var pipeBuilder = new PipeBuilder(_config, globalData, _logger);
+                var catalog = new AggregateCatalog();
+
+                catalog.Catalogs.Add(new AssemblyCatalog(typeof(LoadProcess).Assembly));
+                catalog.Catalogs.Add(new DirectoryCatalog("Engine"));
+
+                var pipeBuilder = new PipeBuilder(_config, globalData, _logger, new CompositionContainer(catalog));
 
                 ETLtasks[i] = Task.Factory.StartNew(() =>
                 {

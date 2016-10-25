@@ -19,18 +19,12 @@ namespace Transformation.Loader
         private readonly IEnumerable<XElement> _transactionElements;
         private readonly GlobalData _globalData;
 
-        public PipeBuilder(XElement config, GlobalData globalData, ILogger logger)
+        public PipeBuilder(XElement config, GlobalData globalData, ILogger logger, CompositionContainer container)
         {
             _logger = logger;
             _globalData = globalData;
 
-
-            var catalog = new AggregateCatalog();
-
-            catalog.Catalogs.Add(new AssemblyCatalog(typeof(LoadProcess).Assembly));
-            catalog.Catalogs.Add(new DirectoryCatalog("Engine"));
-
-            _container = new CompositionContainer(catalog);
+            _container = container;
 
             var pipeElement = config.Element("pipe");
             if (pipeElement == null)

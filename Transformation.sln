@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformationCore", "Transformation\TransformationCore.csproj", "{EE3C4F3C-C316-4A17-9730-6280D948C2DA}"
 EndProject
@@ -28,6 +28,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging", "Logging\Logging.csproj", "{22595753-FBEF-467E-8019-6E1FE5504B05}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileProcessing.Core", "FileProcessing.Core\FileProcessing.Core.csproj", "{93F43588-90D6-44E6-9201-53B2FF6B892E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Transformation.Tests", "Transformation.Tests\Transformation.Tests.csproj", "{6E3DAA25-FC66-4442-AA7A-F36EA2ED4226}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,6 +89,10 @@ Global
 		{93F43588-90D6-44E6-9201-53B2FF6B892E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93F43588-90D6-44E6-9201-53B2FF6B892E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93F43588-90D6-44E6-9201-53B2FF6B892E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E3DAA25-FC66-4442-AA7A-F36EA2ED4226}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E3DAA25-FC66-4442-AA7A-F36EA2ED4226}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E3DAA25-FC66-4442-AA7A-F36EA2ED4226}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E3DAA25-FC66-4442-AA7A-F36EA2ED4226}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -21,7 +21,7 @@ namespace TransformationCore
         {
             if (filterConfig.Attribute("field") == null || filterConfig.Attribute("operator") == null || filterConfig.Attribute("value") == null)
             {
-                throw new TransformationFilterException(string.Format("Invalid Filter {0}", filterConfig.Attribute("field").Value));
+                throw new TransformationFilterException(string.Format("Invalid Filter {0}", filterConfig.Attribute("field")?.Value));
             }
 
             FieldName = filterConfig.Attribute("field").Value.ToLower();
