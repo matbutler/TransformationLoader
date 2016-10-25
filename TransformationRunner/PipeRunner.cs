@@ -15,18 +15,20 @@ namespace Transformation.Loader
         private Dictionary<string, ITransformation> _transformationPipe;
         private int _pipeNumber;
         private int _errorsAllowed;
+        private RowLogAction _rowLogAction;
 
         private ILogger _logger;
 
-        public PipeRunner(int pipeNumber, Dictionary<string, ITransformation> transformationPipe, int errorsAllowed, ILogger logger)
+        public PipeRunner(int pipeNumber, Dictionary<string, ITransformation> transformationPipe, int errorsAllowed, ILogger logger, RowLogAction rowLogAction)
         {
             _transformationPipe = transformationPipe;
             _pipeNumber = pipeNumber;
             _errorsAllowed = errorsAllowed;
+            _rowLogAction = rowLogAction;
             _logger = logger;
         }
 
-        public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, ref int pipeCount, ref int rowprocessedCount, CancellationToken ct, RowLogAction rowLogAction)
+        public void Load(BlockingCollection<Dictionary<string, object>> inputQueue, ref int errorCount, ref int pipeCount, ref int rowprocessedCount, CancellationToken ct)
         {
             _logger.Debug(string.Format("Pipe {0}: Started", _pipeNumber));
             Interlocked.Increment(ref pipeCount);
@@ -40,7 +42,7 @@ namespace Transformation.Loader
                         ct.ThrowIfCancellationRequested();
                     }
 
-                    LoadRow(row, ref errorCount, rowLogAction);
+                    LoadRow(row, ref errorCount);
                     Interlocked.Increment(ref rowprocessedCount);
                 }
 
@@ -66,7 +68,7 @@ namespace Transformation.Loader
             }
         }
 
-        private void LoadRow(Dictionary<string, object> row, ref int errorCount, RowLogAction rowLogAction)
+        private void LoadRow(Dictionary<string, object> row, ref int errorCount)
         {
             string curTransformation = "";
 
@@ -87,17 +89,17 @@ namespace Transformation.Loader
 
                     if (row.ContainsKey("#DROP") && (bool)row["#DROP"] == true)
                     {
-                        rowLogAction?.Invoke(false, true, rowNo, null);
+                        _rowLogAction?.Invoke(false, true, rowNo, null);
                         return;
                     }
                 }
-                rowLogAction?.Invoke(true, false, rowNo, null);
+                _rowLogAction?.Invoke(true, false, rowNo, null);
             }
             catch (Exception ex)
             {
                 string errMsg = string.Format("Error Transforming Row {0} in {2} : {1}", rowNo, ex.Message, curTransformation);
 
-                rowLogAction?.Invoke(false, false, rowNo, errMsg);
+                _rowLogAction?.Invoke(false, false, rowNo, errMsg);
 
                 Interlocked.Increment(ref errorCount);
                 if (_errorsAllowed != -1 && errorCount >= _errorsAllowed)
@@ -113,17 +115,14 @@ namespace Transformation.Loader
         }
 
         #region "IDisposable Support"
-        // To detect redundant calls
         private bool disposedValue;
 
-        // IDisposable
         protected virtual void Dispose(bool disposing)
         {
             if (!this.disposedValue)
             {
                 if (disposing)
                 {
-                    //dispose managed state (managed objects).
                     foreach (var tranKV in _transformationPipe)
                     {
                         var tran = tranKV.Value;
@@ -137,10 +136,8 @@ namespace Transformation.Loader
             this.disposedValue = true;
         }
 
-        // This code added by Visual Basic to correctly implement the disposable pattern.
         public void Dispose()
         {
-            // Do not change this code.  Put cleanup code in Dispose(disposing As Boolean) above.
             Dispose(true);
             GC.SuppressFinalize(this);
         }

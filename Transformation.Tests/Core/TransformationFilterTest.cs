@@ -8,6 +8,7 @@ using TransformationCore.Exceptions;
 namespace Transformation.Tests.Loader
 {
     [TestFixture]
+    [Category("TransformationFilter")]
     public class TransformationFilterTest
     {
         private static TransformationFilter BuildTransformationFilter(string configXML)

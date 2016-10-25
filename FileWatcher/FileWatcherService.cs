@@ -59,12 +59,14 @@ namespace FileProcessing.Watcher
         public bool Start()
         {
             _fileSystemWatcher.EnableRaisingEvents = true;
+            _logger.Info("FileWatcher Started");
             return true;
         }
 
         public bool Stop()
         {
             _fileSystemWatcher.EnableRaisingEvents = false;
+            _logger.Info("FileWatcher Stopped");
             return true;
         }
     }

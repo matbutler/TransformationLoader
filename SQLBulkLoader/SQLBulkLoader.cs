@@ -130,6 +130,10 @@ namespace SQLBulkLoader
             if(count == 0)
             {
                 BulkCopy();
+                lock (_initialisationObject)
+                {
+                    _initailised = false;
+                }
             }
         }
 

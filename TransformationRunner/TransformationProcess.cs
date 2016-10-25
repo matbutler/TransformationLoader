@@ -175,10 +175,10 @@ namespace Transformation.Loader
                     try
                     {
                         var pipe = pipeBuilder.Build(pipeno);
-                        var tpipe = new PipeRunner(pipeno, pipe, 1, _logger);
+                        var tpipe = new PipeRunner(pipeno, pipe, 1, _logger, LogRow);
                         try
                         {
-                            tpipe.Load(_inputQueue, ref _rowErrorCount, ref _activePipeCount, ref _rowprocessedCount, _cancellationTokenSource.Token, LogRow);
+                            tpipe.Load(_inputQueue, ref _rowErrorCount, ref _activePipeCount, ref _rowprocessedCount, _cancellationTokenSource.Token);
                         }
                         finally
                         {

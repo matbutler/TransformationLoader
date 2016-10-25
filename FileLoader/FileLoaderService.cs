@@ -43,6 +43,8 @@ namespace FileProcessing.Loader
 
         public bool Start()
         {
+            _logger.Info("File Loader Started");
+
             try
             {
                 _cancellationTokenSource = new CancellationTokenSource();
@@ -64,8 +66,6 @@ namespace FileProcessing.Loader
 
             return Task.Run(async () =>
             {
-                _logger.Info("File Loader Started");
-
                 while (!_cancellationTokenSource.Token.IsCancellationRequested)
                 {    
                     ProcessFile fileToProcess = null;
@@ -104,6 +104,8 @@ namespace FileProcessing.Loader
             _cancellationTokenSource?.Cancel();
 
             _loadProcessLoopTask.Wait();
+
+            _logger.Info("File Loader Stopped");
 
             return true;
         }

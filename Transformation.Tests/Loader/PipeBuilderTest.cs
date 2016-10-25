@@ -1,21 +1,19 @@
 ﻿using Logging;
 using Moq;
 using NUnit.Framework;
-using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Xml.Linq;
 using Transformation.Loader;
 using TransformationCore;
 using TransformationCore.Exceptions;
 using TransformationCore.Models;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.Composition.Primitives;
 
 namespace Transformation.Tests.Loader
 {
     [TestFixture]
+    [NUnit.Framework.Category("PipeBuilder")]
     public class PipeBuilderTest
     {
         public static void ComposeExportedValue(CompositionContainer container, object exportedValue)

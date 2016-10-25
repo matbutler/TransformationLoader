@@ -3,13 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading;
 using System.Xml.Linq;
 using TransformationCore;
 using TransformationCore.Exceptions;
-using TransformationCore.Helpers;
 using TransformationCore.Models;
 
 namespace SQLBulkLoader
